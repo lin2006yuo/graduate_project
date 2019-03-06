@@ -12,7 +12,8 @@ const companySchema = new Schema({
     resumes: [{
         type: Schema.Types.ObjectId,
         ref: 'resumeModel'
-    }]
+    }],
+    avatar: { type: String, default: "localhost:3000/uploads/default.png" }
 })
 
 module.exports = companySchema

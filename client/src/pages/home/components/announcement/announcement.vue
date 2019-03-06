@@ -1,5 +1,6 @@
 <template>
     <div class="announcement">
+        <div class="top-bg"></div>
         <antitle></antitle>
         <ul class="arti-list">
             <li class="item" v-for="(item, index) in announceList" :key="index" >
@@ -76,21 +77,32 @@ export default {
 <style scoped lang="stylus">
 @import '~assets/css/variable.styl'
 .announcement
-    border-left 1px solid #eaeaea
-    border-right  1px solid #eaeaea
     width 960px
     height 500px
-    margin 20px auto 0
-    border-radius 5px
-    padding 10px 40px
+    margin 0 auto
+    padding 100px 40px 0
+    background center center / cover url("~@/assets/img/bg_02.jpg") no-repeat
+    .top-bg {
+        height 80px
+        width 100%
+        position absolute
+        left 0
+        top 0
+        background center center / cover url("~@/assets/img/bg_1.png")
+        z-index 100
+    }
     .arti-list
-        height 0
-        padding-bottom 410px
         width 100%
         .item
             height 40px
-            border-bottom 1px dashed #ddd
+            margin 5px
+            padding 2px 10px
+            background-color #fff
+            box-shadow 0 0 3px 0px rgba(0,0,0,0.2)
+            transition  all .35s
             &:hover
+                transform translate3d(0,-1px,0)
+                box-shadow 0 1px 5px 0px rgba(0,0,0,0.2)                
                 .time
                     color $bg-color-hover
                 .ti

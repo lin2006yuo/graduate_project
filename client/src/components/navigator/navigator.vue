@@ -1,48 +1,52 @@
 <template>
     <div class="navigator">
-        <div class="wrapper">
-            <h1 class="title">韶关学院</h1>
-            <a href="#" class="logo">
-                <img src="./img/logo.png" alt="">
-            </a>
-            <span class="line"></span>
-            <h5 class="pp">校园招聘网</h5>
-            <ul class="nav-list">
-                <li class="item"><router-link to="/index">首页</router-link></li>
-                <li class="item"><router-link to="/index/announcement">校园公告</router-link></li>
-                <li class="item"><router-link to="/index/recruit">招聘信息</router-link></li>
-                <li class="item"><a href="#">简历信息</a></li>
-            </ul>
-            <div class="avator" :class="{logined: debugIsLogin}">
-                <!-- 登陆图标 -->
-                <img class="ava" v-show="debugIsLogin" src="./img/avator.jpg" alt="" @mouseover="showbox" @mouseout="cancelbox">
-                <!-- 未登录图标 -->
-                <img v-show="!debugIsLogin" src="./img/unlogin-avator.jpg" alt="" @click="login">
-                <p class="disc" v-show="!debugIsLogin">您还未登陆，请登陆</p>
-            </div>
-            <transition name="height">
-                <div class="minbox" v-show="showMinbox" @mouseover="showbox" @mouseout="cancelbox">
-                    <a @click.prevent="personalClick">个人中心</a>
-                    <a @click.prevent="loginout">退出</a>
-                </div>
-            </transition>
+        <div class="shadow">
+
         </div>
-        <!-- DEBUG -->
-        <div class="debugbtn" @click="toggleLogin">
-            点击登陆
+        <div class="wrapper">
+            <div class="logo-box">
+                <h1 class="title">韶关学院</h1>
+                <a href="#" class="logo">
+                    <img src="./img/logo.png" alt="">
+                </a>
+                <span class="line"></span>
+                <h5 class="pp">校园招聘网</h5>
+            </div>
+            <div class="nav-box">
+                <ul class="nav-list">
+                    <li class="item"><router-link to="/index">首页</router-link></li>
+                    <li class="item"><router-link to="/index/announcement">校园公告</router-link></li>
+                    <li class="item"><router-link to="/index/recruit">招聘信息</router-link></li>
+                    <!-- <li class="item"><a href="#">简历信息</a></li> -->
+                </ul>
+                <div class="avator" :class="{logined: debugIsLogin}">
+                    <!-- 登陆图标 -->
+                    <img class="ava" v-show="debugIsLogin" :src="avatarUrl" alt="" @mouseover="showbox" @mouseout="cancelbox">
+                    <!-- 未登录图标 -->
+                    <img v-show="!debugIsLogin" src="./img/unlogin-avator.jpg" alt="" @click="login">
+                    <p class="disc" v-show="!debugIsLogin">您还未登陆，请登陆</p>
+                </div>
+                <transition name="height">
+                    <div class="minbox" v-show="showMinbox" @mouseover="showbox" @mouseout="cancelbox">
+                        <a @click.prevent="personalClick">个人中心</a>
+                        <a @click.prevent="loginout">退出</a>
+                    </div>
+                </transition>
+            </div>
         </div>
     </div>
 </template>
 
 <script type="text/ecmascript-6">
-import {getUserInfo, loginout} from  'api/front'
+import {getUserInfo, loginout, getJl} from  'api/front'
 import {mapMutations,mapActions, mapGetters} from 'vuex'
 
 export default {
     data() {
         return {
             showMinbox: false,
-            debugIsLogin: false
+            debugIsLogin: false,
+            isCompany: ''
         };
     },
     mounted(){
@@ -52,15 +56,27 @@ export default {
                //公司
                if(res.flag){
                    this.setCompany(res.data)
+                    this.isCompany = true                   
                }
                //学生
                else{
+                   this.isCompany = false 
                    this.setStudent(res.data)
+                   getJl(res.data._id).then(res => {
+                       if(res.code === 0) {
+                           this.setJl(res.data)
+                       }else {
+                           return new Error('查询不到')
+                       }
+                   })
                }
            }else{
                return 
            }
-        }).catch(err => {
+        }).then(studentId => {
+            
+        })
+        .catch(err => {
            console.log(err)
         })
     },
@@ -68,7 +84,12 @@ export default {
         ...mapGetters([
             'companyInfo',
             'studentInfo'
-        ])
+        ]),
+        avatarUrl() {
+            const Regx = /data:image/i
+            const info = this.isCompany ? this.companyInfo : this.studentInfo
+            return Regx.test(info.avatar) ?  info.avatar : `http://${info.avatar}`
+        }
     },
     components: {},
     methods: {
@@ -111,6 +132,7 @@ export default {
             setCompany: 'SET_COMPANY',
             delStudent: 'DEL_STUDENT',
             delCompany: 'DEL_COMPANY',
+            setJl: 'SET_JL'
         }),
     }
 };
@@ -121,21 +143,26 @@ export default {
 .navigator
     width 100%
     height 60px
-    border-bottom 1px solid #eaeaea
-    background-color $bg-color
-    position relative
+    padding 10px 0
+    position absolute
     z-index 999
-    .debugbtn
-        width 50px
-        height 30px
-        background-color #666
-        position fixed
-        top 50%
-        left 20px
+    .shadow 
+        position absolute
+        left 
+        top 0
+        width 100%
+        box-shadow: 0 10px 50px 50px rgba(0,0,0,0.4);
     .wrapper
-        width 960px
+        width 100%
         margin 0 auto
         position relative
+        .logo-box 
+            position absolute
+            left 30px
+            top 0
+        .nav-box
+            position absolute
+            right 350px
         .title
             width 104px
             display inline-block
@@ -175,18 +202,23 @@ export default {
                 float left
                 padding 0 16px
                 height 60px
+                opacity 0.7
+                transition opacity .4s
                 a
                     display block
                     height 100%
                     font-size 16px
                     color: #fff
+                    opacity 1
                 &:hover
-                    background-color $bg-color-hover
+                    opacity 1
+                    background-color rgba(0,0,0,0.5)
         .avator
             float right 
             height 60px
             text-align center
             padding 5px 0 0
+            margin-left 80px
             &.logined
                 padding-top 10px
             img 

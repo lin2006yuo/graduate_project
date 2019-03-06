@@ -2,6 +2,112 @@ const express = require("express")
 const router = express.Router()
 const db = require("../db")
 const mongoose = require("mongoose")
+var multer  = require('multer')
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'static/uploads/')
+    },
+    filename: function (req, file, cb) {
+        const id = req.headers.id
+      cb(null, id + '.png')
+    }
+  })
+var upload = multer({ storage: storage })
+
+//学生 -- 修改密码
+router.post('/mofifyStudentPwd', function(req, res) {
+    const id = mongoose.Types.ObjectId(req.body._id)
+    const pwd = req.body.pwd
+    const newPwd = req.body.newPwd
+    const isCompany = req.body.isCompany
+    console.log(isCompany)
+
+    if(isCompany === true) {
+        console.log('company')
+        db.companyModel.findOne({ _id: id }, function(err, doc) {
+            if(err) {
+                res.json({ code:1, msg: '服务器错误', err }) 
+            } else {
+                if(doc.pwd !== pwd) {
+                    res.json({ code: 1, msg: '密码错误，请输入正确密码', err })
+                } else {
+                    db.companyModel.updateOne(
+                        { _id: id },
+                        {
+                            pwd: newPwd
+                        },
+                        function(err, doc) {
+                            if(err) {
+                                rse.json({ code: 1, msg: '修改失败', err: err })
+                            } else{
+                                res.json({ code: 0, msg:' 修改成功', data: doc })
+                            }
+                        }
+                    )          
+                }
+            }
+        })
+    } else {
+        console.log('student')
+        db.studentModel.findOne({ _id: id }, function(err, doc) 
+        {
+            if(err) {
+                res.json({ code:1, msg: '服务器错误', err }) 
+            } else {
+                if(doc.pwd !== pwd) {
+                    res.json({ code: 1, msg: '密码错误，请输入正确密码', err })
+                } else {
+                    db.studentModel.updateOne(
+                        { _id: id },
+                        {
+                            pwd: newPwd
+                        },
+                        function(err, doc) {
+                            if(err) {
+                                rse.json({ code: 1, msg: '修改失败', err: err })
+                            } else{
+                                res.json({ code: 0, msg:' 修改成功', data: doc })
+                            }
+                        }
+                    )          
+                }
+            }
+        })
+    }
+})
+
+//修改头像
+router.post('/modifyAvatar', upload.single('img'), function(req, res) {
+    const id = mongoose.Types.ObjectId(req.body.id)
+    const avatarUrl = `localhost:3000/uploads/${req.file.filename}`
+    const isCompany = req.body.isCompany
+    if(isCompany === "true") {
+        db.companyModel.updateOne(
+            { _id: id },
+            { avatar:  avatarUrl},
+            function(err, doc) {
+                if(err) {
+                    res.json({ code: 1, msg: '上传失败' })
+                } else {
+                    res.json({ code: 0, msg: '上传成功', data: avatarUrl })
+                }
+            }
+        )
+    } else {
+        db.studentModel.updateOne(
+            { _id: id },
+            { avatar:  avatarUrl},
+            function(err, doc) {
+                if(err) {
+                    res.json({ code: 1, msg: '上传失败' })
+                } else {
+                    res.json({ code: 0, msg: '上传成功', data: avatarUrl })
+                }
+            }
+        )
+    }
+})
 
 /*************************学生****************************** */
 
@@ -215,35 +321,56 @@ router.get("/getResume", function(req, res) {
 //通过studen_id获取已投递的简历
 router.get("/getResumeById", function(req, res) {
     const studentId = mongoose.Types.ObjectId(req.query.student_id)
-    db.com2jlModel.find({ studentId: studentId }, function(err, doc) {
-        if (err) {
-            res.json({ code: 1, msg: "查询失败" })
-        } else {
-            res.json({ code: 0, msg: "查询成功", data: doc })
-        }
-    })
+    db.com2jlModel.find({ studentId: studentId })
+                    .populate('recruitId')
+                    .populate('jlId')
+                    .populate('companyId')
+                    .exec((err, doc) => {
+                        return res.json({
+                            code: 0, data: doc
+                        })
+                    })
 })
 
 //通过公司id获得投递的简历
-router.get("/getResumeByCompanyId", function(req, res) {
+router.get("/getResumeByCompanyId", async function(req, res) {
     const companyId = mongoose.Types.ObjectId(req.query.companyId)
-    db.com2jlModel.find({ companyId: companyId }, function(err, doc) {
-        if (err) {
+    const page = req.query.page - 1
+    console.log(page)
+    console.log(companyId)
+    let count
+    await db.com2jlModel.count({}, (err, doc) => {
+        if(err) {
             res.json({ code: 1, msg: "查询失败" })
-        } else {
-            res.json({ code: 0, msg: "查询成功", data: doc })
+            return
+        }else {
+            count =  doc
         }
     })
+    db.com2jlModel
+        .find({ companyId: companyId })
+        .skip(page * 6)
+        .limit(6)
+        .populate('studentId')
+        .populate('recruitId')
+        .populate('jlId')
+        .exec((err, doc) => {
+            return res.json({
+                code:0, data:{data: doc, count}
+            })
+        })
 })
 
 /***********************公司-简历-学生******************************* */
 
 router.post("/submitJl", function(req, res) {
+    const recruitId = mongoose.Types.ObjectId(req.body.recruitId)
     const jlId = mongoose.Types.ObjectId(req.body.jlId)
     const studentId = mongoose.Types.ObjectId(req.body.studentId)
     const companyId = mongoose.Types.ObjectId(req.body.companyId)
     db.com2jlModel.create(
         {
+            recruitId,
             jlId,
             studentId,
             companyId
@@ -259,5 +386,77 @@ router.post("/submitJl", function(req, res) {
 })
 
 router.get("/hasSub", function(req, res) {})
+
+
+router.post("/passJl", function(req, res) {
+    const _id = mongoose.Types.ObjectId(req.body.id)
+    const pass = req.body.pass
+    db.com2jlModel.updateOne(
+        { _id },
+        { status: pass },
+        function(err, doc) {
+            if(err) {
+                res.json({ type: 1, msg: '修改失败，服务器错误' })
+            } else {
+                res.json({ type: 0, msg: '修改成功' })
+            }
+        }
+    )
+})
+
+
+
+/***********************聊天********************** */
+router.post('/readmsg', async (req, res) => {    
+    const from = req.body.from    
+    const to = req.body.to
+    Chat.update({ from, to, read: false }, { read: true }, { multi: true }, function(err, doc) {
+        console.log('/readmsg', msg)
+        res.send({ code: 0, data: doc.nModified })
+    })
+});
+
+router.get('/msglist', function(req, res) {     
+    const id = req.body.id
+    const type = req.body.type
+    const model = {}
+    if(type === 'student') {
+        model = db.studentModel
+    } else {
+        model = db.companyModel
+    }
+    model.find((err, userDocs) => {
+            const users = {}        
+            userDocs.forEach(doc => {            
+                users[doc._id] = { username: doc.name || doc.companyName, avatar: doc.avatar }        
+            })
+            db.chatModel.find({'$or': [{from: id}, {to: id}]}, filter, function(err, chatMsg) {            
+                res.send({ code: 0, data: { users, chatMsg } })        
+            })    
+    })
+})
+
+router.get('/getchatlist', function(req, res) {
+    const id = req.query.id
+    db.chatListModel.find({from: id}, function(err, doc) {
+        if(err) {
+            res.json({code: 1, message: err})
+        } else {
+            res.json({ code: 0, data: doc })
+        }
+    })
+})
+
+router.post('/addchator', function(req, res) {
+    const id = req.body.id
+    const target_id = mongoose.Types.ObjectId(req.body.targetId)
+    const type = req.body.type
+    if(type === 'student') {
+        db.chatListModel.create({
+            from: id,
+            studentList
+        })
+    }
+})
 
 module.exports = router

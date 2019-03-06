@@ -8,20 +8,30 @@
             <el-table
             border
             :data="tableData"
-            style="width: 100%">
+            >
             <el-table-column
-                prop="date"
                 label="日期"
                 width="180">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.date | date }}</span>
+                </template>
             </el-table-column>
             <el-table-column
-                prop="address"
+                prop="companyName"
                 label="公司">
             </el-table-column>
             <el-table-column
-                prop="status"
+                label="招聘简介">
+                <template slot-scope="scope">
+                    <span v-html="scope.row.title"></span>
+                </template>
+            </el-table-column>
+            <el-table-column
                 label="状态"
-                width="50">
+                width="100">
+                <template slot-scope="scope">
+                    <span>{{ scope.row.status | status }}</span>
+                </template>
             </el-table-column>
             </el-table>
         </div>
@@ -29,29 +39,40 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { getResumeById } from '@/api/front'
+import manba from 'manba'
+
 export default {
     data() {
         return {
-            tableData: [{
-                date: '2016-05-02',
-                address: '上海市普陀区金沙江路 1518 弄',
-                status: '等待回复'
-            }, {
-                date: '2016-05-04',
-                address: '上海市普陀区金沙江路 1517 弄',
-                status: '等待回复'
-            }, {
-                date: '2016-05-01',
-                address: '上海市普陀区金沙江路 1519 弄',
-                status: '等待回复'
-            }, {
-                date: '2016-05-03',
-                address: '上海市普陀区金沙江路 1516 弄',
-                status: '等待回复'
-            }]
+            tableData: [],
         };
     },
-    components: {}
+    components: {},
+    mounted() {
+        const studentId = this.$store.state.front.student._id
+        getResumeById(studentId).then(res => {
+           this.tableData = res.data.map(v => {
+               return {...v.recruitId, ...v.companyId, status: v.status, date: v.date}
+           })
+        })
+    },
+    filters: {
+        date(value) {
+            return manba(+new Date(value)).format('YYYY-MM-dd')
+        },
+        status(value) {
+            if(value == 1) {
+                return '等待考核'
+            } else if(value == 2) {
+                return '通过'
+            } else if(value == 0) {
+                return '未通过'
+            } else {
+                return '服务器错误'
+            }
+        }
+    }
 };
 </script>
 

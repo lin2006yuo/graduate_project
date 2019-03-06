@@ -1,11 +1,10 @@
 <template>
     <div class="new">
+        <p class="title">
+            <span class="ti">最新资讯</span>
+            <router-link to="/index/announcement" class="more">更多</router-link>
+        </p>
         <ul class="new-list">
-            <p class="title">
-                <span class="ti">校园公告</span>
-                <router-link to="/index/announcement" class="more">更多</router-link>
-            </p>
-            <span class="line"></span>
             <!-- <li class="item">
                 <a href="#">
                     <p class="text"><router-link to="/index/page">关于举办2018年离校未就业高校毕业生网上招聘活动的通知</router-link></p>
@@ -14,7 +13,10 @@
             </li> -->
             <li class="item" v-for="(item,index) in announceList" :key="index">
                 <a href="#">
-                    <p class="text"><a @click.prevent="selectItem(item)">{{item.title}}</a></p>
+                    <p class="text">
+                        <a @click.prevent="selectItem(item)">{{item.title}}</a>
+                        <span><i class="el-icon-time"></i>&nbsp;{{item.time | formate}}</span>
+                    </p>
                 </a>
             </li>    
         </ul>
@@ -33,6 +35,11 @@ export default {
             required: true
         }
     },
+    filters: {
+        formate(time) {
+            return new Date(time).toLocaleDateString().replace(/\//g, '-')
+        }
+    },
     components: {},
     methods: {
         selectItem(item){
@@ -48,44 +55,55 @@ export default {
 @import '~assets/css/variable.styl'
 .new
     width 100%
-    .new-list
-        background-color #fafafa
-        .title
-            font-size 16px
-            line-height 40px
-            text-indent 8px
-            color #666
-            .more
-                float right
-                font-size 10px
-                color #999
-                margin-right 5px
-                &:hover
-                    color $bg-color
-        .line
-            display block
-            width 100%
-            height 3px
-            background-color $bg-color
-            margin-bottom 10px
-        .item
-            height 30px
-            border-bottom 1px solid #f5f5f5
+    height 100%
+    box-sizing border-box
+    background-color rgba(0,0,0,0.7)
+    padding 100px 20px 0
+    .title
+        font-size 32px
+        line-height 40px
+        text-indent 8px
+        color #ddd
+        font-family 'Microsoft JhengHei'
+        .more
+            float right
+            font-size 14px
+            color #ddd
+            margin-right 5px
+            padding 0 10px
+            text-indent 0
+            background-color rgba(0,0,0,0.2)
             &:hover
+                background-color rgba(0,0,0,0.3)
+                color #ffd149
+    .new-list
+        margin-top 20px
+        .item
+            height 40px
+            // background-color rgba(255,255,255,0.5)
+            margin 4px 0
+            &:hover
+                transition: background-color 1.5s;
+                background-color #ddd
                 a
-                    color $bg-color
+                    color #000
             a
                 display block
+                height 40px
                 width 100%
                 height 100%
-                line-height 25px
+                line-height 40px
+                color #fff
                 .text
-                    display inline-block
-                    width 80%
+                    display flex
                     white-space nowrap
                     overflow:hidden;
                     text-overflow:ellipsis
                     text-indent 10px
+                    a
+                        flex 1
+                    span
+                        width 120px
                 .new
                     margin-top 7px
                     margin-right 5px

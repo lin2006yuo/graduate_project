@@ -1,18 +1,20 @@
 <template>
         <swiper :options="swiperOption" ref="mySwiper" >
             <!-- slides -->
-            <swiper-slide class="swiper-no-swiping" v-for="item in 4" :key="item">
+            <div class="back"></div>
+            <swiper-slide class="swiper-no-swiping" v-for="item in imgObject" :key="item._id">
                 <div class="slide">
                     <a href="#">
-                        <img src="./img/3.png" :alt="item">
+                        <!-- <img :src="`http://${item.picUrl}`" :alt="item"> -->
+                        <div class="img" :style="{backgroundImage: `url(http://${item.picUrl})`}" ></div>
                     </a>
                     <p class="text"></p>
                 </div>
             </swiper-slide>
             <!-- Optional controls -->
-            <div class="swiper-pagination"  slot="pagination"></div>
+            <!-- <div class="swiper-pagination"  slot="pagination"></div>
             <div class="swiper-button-prev" slot="button-prev"></div>
-            <div class="swiper-button-next" slot="button-next"></div>
+            <div class="swiper-button-next" slot="button-next"></div> -->
             <!-- <div class="swiper-scrollbar"   slot="scrollbar"></div> -->
             
         </swiper>
@@ -24,13 +26,15 @@ export default {
     data() {
         return {
             swiperOption: {
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
-                pagination: {
-                    el: '.swiper-pagination',
-                },
+                effect: 'fade',
+                mousewheel: true,
+                // navigation: {
+                //     nextEl: '.swiper-button-next',
+                //     prevEl: '.swiper-button-prev',
+                // },
+                // pagination: {
+                //     el: '.swiper-pagination',
+                // },
             },
         };
     },
@@ -49,13 +53,24 @@ export default {
 
 <style scoped lang="stylus">
 @import '~assets/css/variable.styl'
+.back
+    // background: linear-gradient(to right, #e55d87, #5fc3e4);
+    position absolute
+    left 0
+    top 0
+    right 0
+    height 5px
+    z-index 200
 >>> .swiper-pagination-bullet-active
     background-color $bg-color
 .slide
+    height 100%
     position relative
-    img 
+    .img 
         width 100%
         height 100%
+        background-size cover
+        background-repeat no-repeat
     .text
         position absolute
 </style>

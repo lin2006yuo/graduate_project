@@ -1,6 +1,7 @@
 var createError = require('http-errors');
 var express = require('express')
 var app = express()
+var path = require("path")
 //路由
 var admin = require('./routes/admin')
 var front = require('./routes/front')
@@ -15,6 +16,7 @@ const cors = require('cors')
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(express.static(path.join(__dirname, 'static')))
 app.use(cors({
     maxAge: 172800,
     credentials: true, 
@@ -32,47 +34,11 @@ app.use(session({
     },
 }));
 
-// app.use(function (req, res, next) {
-//     const prefix = req.originalUrl.match(/\/\w+/)[0]
-//     if(prefix === '/public'){
-//         next()
-//     }else{
-//         if (!req.session._id) {
-//             res.json({
-//                 code: 2,
-//                 msg: '没登陆，被拦截'
-//             })
-//         } else {
-//             next()
-//         }
-//     }
-// })
+
 
 app.use('/admin', admin)
 app.use('/front', front)
 app.use('/public', public)
 
-// app.use(function (req, res, next) {
-//     console.log(req.cookies.id);
-    
-//     next(createError(404));
-// });
-// app.use(function (err, req, res, next) {
-//     // set locals, only providing error in development
-//     console.log(req.body);
-    
-    
-//     res.locals.message = err.message;
-//     res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-//     // render the error page
-//     res.status(err.status || 500);
-//     res.json({
-//         code: 1,
-//         msg: '404'
-//     })
-// });
-
-
-app.get('/', (req, res) => res.send('Hello World!'))
-app.listen(3000, () => console.log('Example app listening on port 3000!'))
+module.exports = app

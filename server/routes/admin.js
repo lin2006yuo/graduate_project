@@ -2,6 +2,18 @@ const express = require('express')
 const router = express.Router()
 const db = require('../db')
 const mongoose = require('mongoose')
+const multer  = require('multer')
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'static/uploads_swiper/')
+    },
+    filename: function (req, file, cb) {
+        const timestamp = Date.now()
+      cb(null, timestamp + '.png')
+    }
+  })
+const upload = multer({ storage: storage })
 
 
 // 登陆请求
@@ -294,6 +306,42 @@ router.get('/getAllResume', function (req, res) {
 
 
 
+/****************************** 轮播图 ******************************** */
+
+//添加
+router.post('/uploadPic', upload.single('file'),function(req, res) {
+    const picUrl = `localhost:3000/uploads_swiper/${req.file.filename}`
+    db.swiperPicModel.create({ picUrl }, function(err, doc) {
+        if(err) {
+            res.json({ type: 1, mgs: '服务器错误' })
+        } else {
+            res.json({ type: 0, msg: '添加成功', data: doc })
+        }
+    })
+})
+
+//获取
+router.get('/getSwiperPic', function(req, res) {
+    db.swiperPicModel.find({}, function(err, doc) {
+        if(err) {
+            res.json({ type: 1, msg: '服务器错误' })
+        } else {
+            res.json({ type: 0, msg: '获取成功', data: doc })
+        }
+    })
+})
+
+//删除
+router.post('/deletePic', function(req, res) {
+    const _id = mongoose.Types.ObjectId(req.body._id)
+    db.swiperPicModel.deleteOne({ _id }, function(err, doc) {
+        if(err) {
+            res.json({ code: 1, msg: '服务器错误' })
+        } else {
+            res.json({ code: 0, msg: '删除成功', data: doc })
+        }
+    })
+})
 
 
 
@@ -305,5 +353,9 @@ router.post('/avator',function (req, res) {
         msg: 'suc'
     })
 })
+
+
+
+
 
 module.exports = router

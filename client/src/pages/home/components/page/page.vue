@@ -1,5 +1,6 @@
 <template>
     <div class="page">
+        <div class="top-bg"></div>
         <antitle></antitle>
         <div class="article">
             <div class="title">{{announce.title}}</div>
@@ -41,18 +42,26 @@ export default {
     border-left 1px solid #eaeaea
     border-right  1px solid #eaeaea
     width 960px
-    height 600px
-    margin 20px auto 0
+    height 100%
+    margin 0 auto 0
     border-radius 5px
     padding 10px 40px
-    .article
+    .top-bg {
+        height 80px
         width 100%
-        margin-top 20px
+        position absolute
+        left 0
+        top 0
+        background center center / cover url("~@/assets/img/bg_1.png")
+        z-index 100
+    }
+    .article
+        margin-top 40px
         background-color #fdfdfd
         height 500px
         font-size 14px
         position relative
-        padding 10px 0
+        padding 20px
         .title
             font-size 26px
             text-align center

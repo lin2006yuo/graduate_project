@@ -170,6 +170,7 @@ export default {
                    register(this.registerForm).then(res => {
                        if(res.code === 0){
                            this.loginBox = true
+                           this.$message({ type: 'success', message: '恭喜您，注册成功' })
                        }
                    })
                }else{

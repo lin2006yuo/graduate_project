@@ -4,7 +4,6 @@ import router from '@/router/index.js'
 
 axios.defaults.withCredentials = true;
 axios.interceptors.response.use(res => {
-    console.log("拦截器"+res.data.code);
     if(res.data.code === 2){
         router.push({name: 'Login'})
     }
@@ -145,6 +144,26 @@ export function deleteCompany(id) {
  */
 export function updateCompany(params) {
     const url = 'http://localhost:3000/admin/updateCompany'
+    return axios.post(url, params).then(res => {
+        return Promise.resolve(res.data)
+    }).catch(err => {
+        return Promise.reject(err)
+    })
+}
+
+
+/******************** 轮播图 ******************** */
+export function getSwiperPic() {
+    const url = 'http://localhost:3000/admin/getSwiperPic'
+    return axios.get(url).then(res => {
+        return Promise.resolve(res.data)
+    }).catch(err => {
+        return Promise.reject(err)
+    })
+}
+
+export function deletePic(params) {
+    const url = 'http://localhost:3000/admin/deletePic'
     return axios.post(url, params).then(res => {
         return Promise.resolve(res.data)
     }).catch(err => {

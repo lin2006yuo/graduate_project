@@ -1,10 +1,10 @@
 <template>
-    <div class="">
+    <div class="bg">
         <div class="center">
-            <new-nav :announceList="announceList" class="new-nav"></new-nav>
             <swiper :imgObject="imgArray" class="l-swiper"></swiper>
+            <new-nav :announceList="announceList" class="new-nav"></new-nav>
         </div>
-        <recom class="recom"></recom>
+        <recom class="recom-box"></recom>
     </div>
 </template>
 
@@ -16,6 +16,7 @@ import Recom from 'components/recom/recom'
 import {getAnnounce} from 'api/admin/admin'
 //vuex
 import {mapMutations, mapGetters} from 'vuex'
+import { getSwiperPic } from  '@/api/admin/admin'
 
 export default {
     data() {
@@ -32,6 +33,9 @@ export default {
             if(res.code === 0){
                 this.announceList = res.data
             }
+        }),
+        getSwiperPic().then(res => {
+            this.imgArray = res.data
         })
     },
     computed: {
@@ -49,19 +53,26 @@ export default {
 <style scoped lang="stylus">
 @import '~assets/css/mixin.styl'
 .center
-    width 960px
-    margin 20px auto 0
+    width 100%
+    margin auto 0
     clearfix()
     .new-nav
-        width 340px
-        margin-right 20px
-        float left
+        position absolute
+        left 0
+        top 0
+        z-index 100
+        width 32%
+        height 750px
     .l-swiper
-        width 600px
-        height 350px
-        float right 
-.recom
-    width 960px
-    margin 20px auto 0
-
+        width 100%   
+        height 750px
+.recom-wrapper {
+    height 700px
+    // background-image url('~@/assets/img/16sucai_P591F2B006_05A.jpg')
+    width 100%
+    z-index 5
+    transform-origin: center top;
+    background-repeat no-repeat
+    background-size cover
+}
 </style>

@@ -1,12 +1,23 @@
 <template>
     <div class="personal">
+        <div class="top-bg"></div>
         <div class="wrapper">
+        <my-upload 
+            field="img"
+            @crop-success="cropSuccess"
+            @crop-upload-success="cropUploadSuccess"
+            @crop-upload-fail="cropUploadFail"
+            v-model="showAvatar"
+            :width="300"
+            :height="300"
+            :params="params"
+            :headers='headers'
+            url="http://localhost:3000/front/modifyAvatar"
+            img-format="png"></my-upload>
             <div class="left">
                 <div class="info">
                     <div class="avator">
-                        <img v-show="!isCompany" src="./img/avator.jpg" alt="">
-                        <img v-show="isCompany" src="./img/comlogo.jpg" alt="">
-                    </div>
+                        <img :src='avatarUrl' alt="" @click="showAvatar = true">                  </div>
                     <span class="name">{{studentInfo.name}}</span>
                     <span class="academy">{{studentInfo.academy}}</span>
                     <span class="profes">{{grade}}{{studentInfo.major}}</span>
@@ -41,13 +52,22 @@
 <script type="text/ecmascript-6">
 import { getUserInfo } from 'api/front'
 import {mapMutations, mapGetters} from 'vuex'
+import myUpload from 'vue-image-crop-upload';
+
 export default {
     data() {
         return {
-            isCompany: false
+            isCompany: false,
+            showAvatar: false,
+            params: {
+                id: "",
+                isCompany: ""
+            },
+            headers: { id: '' },
+            imgDataUrl: ''
         };
     },
-    components: {},
+    components: { myUpload },
     mounted() {    
         getUserInfo().then(res => {
             if(res.code === 1){
@@ -59,6 +79,7 @@ export default {
                     this.isCompany = true
                 }else{
                     this.setStudent(res.data)
+                    this.isCompany = false
                 }
             }
             
@@ -84,6 +105,11 @@ export default {
                 return new Date().getFullYear() - 2003
             }
 
+        },
+        avatarUrl() {
+            const Regx = /data:image/i
+            const info = this.isCompany ? this.companyInfo : this.studentInfo
+            return Regx.test(info.avatar) ?  info.avatar : `http://${info.avatar}`
         }
     },
     methods: {
@@ -107,7 +133,23 @@ export default {
         ...mapMutations({
             setStudent: 'SET_STUDENT',
             setCompany: 'SET_COMPANY'
-        })
+        }),
+        cropSuccess(imgDataUrl) {
+            const info = this.isCompany ? this.companyInfo : this.studentInfo
+            this.params.id = info._id
+            this.params.isCompany = this.isCompany
+            this.headers.id = info._id
+            this.imgDataUrl = imgDataUrl
+        },
+        cropUploadSuccess(jsonData, field) {
+            const info = this.isCompany ? this.companyInfo : this.studentInfo
+            const retInfo = { ...info }
+            retInfo.avatar = this.imgDataUrl
+            this.isCompany ? this.setCompany(retInfo) : this.setStudent(retInfo)
+        },
+        cropUploadFail() {
+
+        }
     }
 };
 </script>
@@ -121,6 +163,15 @@ export default {
     height 100%
     position absolute
     top 0
+    .top-bg {
+        height 80px
+        width 100%
+        position absolute
+        left 0
+        top 0
+        background center center / cover url("~@/assets/img/bg_1.png")
+        z-index 100
+    }
     .debug
         position fixed
         left 20px
@@ -130,7 +181,7 @@ export default {
     .wrapper
         width 1120px
         margin 0 auto
-        padding-top 80px
+        padding-top 100px
         clearfix()
         .left
             float left
@@ -143,7 +194,7 @@ export default {
                     width 100%
                     img
                         width 100px
-                        height 100%
+                        cursor pointer
                         border-radius 50%
                 .name
                 .academy
@@ -163,7 +214,7 @@ export default {
                     top 0
                     width 3px
                     height 60px
-                    background $bg-color
+                    background #ab4d72
                     border-radius 3px
                     transition all .2s ease
                 .menulist
@@ -177,10 +228,10 @@ export default {
                             display block
                             font-size 14px
                             &:hover
-                                color $bg-color
+                                color #ab4d72
                             &.cur
-                                background-color #d9ecff 
-                                color $bg-color  
+                                background-color #ab4d72
+                                color #fff
         .right
             float right
             width 74%

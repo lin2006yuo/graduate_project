@@ -52,7 +52,7 @@ export default {
     border-bottom 1px solid #eaeaea
     .back
       font-size 30px
-      color $bg-color
+      color #ab4d72
       i
         cursor pointer
   .main

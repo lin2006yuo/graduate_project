@@ -15,7 +15,8 @@ const studentSchema = new Schema({
     phone: {type: Number},
     QQ: {type: Number},
     eMail: {type: String},
-    hasJl: {type: Boolean, default: false}
+    hasJl: {type: Boolean, default: false},
+    avatar: { type: String, default: "localhost:3000/uploads/default.png" }
 })
 
 module.exports = studentSchema

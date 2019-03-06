@@ -1,6 +1,20 @@
 import axios from "axios"
 
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+
 /******************学生********************* */
+
+// 修改密码
+export function mofifyStudentPwd(params) {
+  const url = "http://localhost:3000/front/mofifyStudentPwd"
+  return axios.post(url, params)
+              .then(res => {
+                return Promise.resolve(res.data)
+              })
+              .catch(err => {
+                return Promise.reject(err)
+              })
+}
 
 export function register(params) {
   const url = "http://localhost:3000/public/register"
@@ -105,7 +119,7 @@ export function getCityById(id = 44) {
     })
 }
 
-export function getTotalResume(arr = [], cur = 1, limit = 9) {
+export function getTotalResume(arr = [], cur = 1, limit = 10) {
   const url = "http://localhost:3000/public/getResume"
   return axios
     .get(url, {
@@ -116,8 +130,6 @@ export function getTotalResume(arr = [], cur = 1, limit = 9) {
       }
     })
     .then(res => {
-      console.log(res)
-
       return Promise.resolve(res.data)
     })
     .catch(err => {
@@ -261,10 +273,10 @@ export function deleteRecruit(recruit_id) {
     })
 }
 
-export function getResumeByCompanyId(companyId) {
+export function getResumeByCompanyId(companyId, page) {
   const url = "http://localhost:3000/front/getResumeByCompanyId"
   return axios
-    .get(url, { params: { companyId } })
+    .get(url, { params: { companyId, page } })
     .then(res => {
       return Promise.resolve(res.data)
     })
@@ -284,4 +296,16 @@ export function submitJl(params) {
     .catch(err => {
       return Promise.reject(err)
     })
+}
+
+export function passJl(params) {
+  const url = "http://localhost:3000/front/passJl"
+  return axios
+          .post(url, params)
+          .then(res => {
+            return Promise.resolve(res.data)
+          })
+          .catch(err => {
+            return Promise.reject(err)
+          })
 }

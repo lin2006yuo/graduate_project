@@ -6,6 +6,9 @@ const studentModel = require("./model/student")
 const jlModel = require("./model/jl")
 const com2student = require("./model/com2student")
 const com2jlModel = require("./model/com2jl")
+const swiperPicModel = require("./model/swiperPic")
+const chatModel = require("./model/chat")
+const chatListModel = require('./model/chatList')
 
 //管理员
 const adminSchema = new Schema({
@@ -48,7 +51,10 @@ const db = {
     studentModel,
     jlModel,
     com2student,
-    com2jlModel
+    com2jlModel,
+    swiperPicModel,
+    chatModel,
+    chatListModel
 }
 
 module.exports = db

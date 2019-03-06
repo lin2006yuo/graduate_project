@@ -1,5 +1,6 @@
 <template>
   <div class="recruit-page">
+    <div class="top-bg"></div>
     <antitle></antitle>
     <div
       class="article"
@@ -12,11 +13,25 @@
           <span>本科</span>|
           <span>实习{{recruit.day}}个月</span>
         </div>
+        <div class="intro">
+          <div>
+            <div class="title2">公司介绍:</div>
+          </div>
+          <div class="intro-item">名称: {{this.recruit.companyId.companyName}}</div>
+          <div class="intro-item">简介: {{this.recruit.companyId.companyIntro}}</div>
+          <div class="intro-item">位置: {{this.recruit.companyId.position[0]}} - {{this.recruit.companyId.position[1]}}</div>
+          <div class="intro-item">
+                联系方式: {{this.recruit.companyId.contact}} - {{this.recruit.companyId.phone}}
+                <span style="margin-left: 20px; color: #409EFF; cursor: pointer"><i class="iconfont el-icon-lianxi"></i>在线联系</span>
+            </div>
+        </div>
+        <div class="intro"
+            style="margin-top: 20px"
+        ><div class="title2">职位要求:</div></div>
         <div
           class="content"
           v-html="recruit.content"
         >
-
         </div>
       </div>
       <div class="bottom">
@@ -34,7 +49,7 @@
 <script type="text/ecmascript-6">
 import Antitle from "components/antitle/antitle";
 import { submitJl, getResumeById } from "api/front";
-import { mapGetters } from "vuex";
+import { mapGetters, mapState } from "vuex";
 export default {
   data() {
     return {
@@ -47,11 +62,14 @@ export default {
 <p>段落元素由 p 标签定义。</p> `,
       recruit: "",
       fullscreenLoading: false,
-      hasSub: false
+      hasSub: false,
     };
   },
   computed: {
-    ...mapGetters(["studentInfo"])
+    ...mapGetters(["studentInfo"]),
+    ...mapState({
+      jl: state => state.front.jl
+    })
   },
   updated() {
     //查询是否已经投递简历
@@ -59,8 +77,7 @@ export default {
     getResumeById(student_id)
       .then(res => {
         if (res.code === 0) {
-          const Jlid = this.recruit._id;
-          this.hasSub = this.hasSubmit(res.data, Jlid);
+          this.hasSub = this.hasSubmit(res.data, this.recruit._id);
         } else {
           this.$message({
             type: "error",
@@ -73,7 +90,6 @@ export default {
       });
   },
   mounted() {
-    console.log("mounted");
     if (!this.$route.params.recruit) {
       this.$router.push({ name: "Recruit" });
     }
@@ -81,7 +97,7 @@ export default {
   },
   activated() {
     this.recruit = this.$route.params.recruit;
-    console.log(this.recruit);
+    console.log(this.recruit)
   },
   components: {
     Antitle
@@ -99,7 +115,8 @@ export default {
           });
         } else {
           submitJl({
-            jlId: this.recruit._id,
+            jlId: this.jl._id,
+            recruitId: this.recruit._id,
             studentId: this.studentInfo._id,
             companyId: this.recruit.companyId._id
           }).then(res => {
@@ -119,22 +136,32 @@ export default {
       }
     },
     hasSubmit(arr, id) {
-      console.log(arr, id);
-      return arr.some(v => v.jlId === id);
+      return arr.some(v => v.recruitId._id === id && v.status === 1);
     }
   }
 };
 </script>
 
 <style scoped lang="stylus">
+@import '~assets/css/variable.styl'
+
 .recruit-page
   border-left 1px solid #eaeaea
   border-right 1px solid #eaeaea
   width 960px
   height 600px
-  margin 20px auto 0
+  margin 0 auto 0
   border-radius 5px
   padding 10px 40px
+  .top-bg {
+      height 80px
+      width 100%
+      position absolute
+      left 0
+      top 0
+      background center center / cover url("~@/assets/img/bg_1.png")
+      z-index 100
+  }
   .article
     width 100%
     margin-top 20px
@@ -157,7 +184,24 @@ export default {
           display inline-block
           padding 10px
           font-size 15px
+      .intro
+        padding 0 20px
+        .title2
+          display inline-block
+          font-size 18px
+          color #8a3c5b
+        .intro-item 
+          margin 5px 0
+        span
+          position relative
+          &:after
+            content "",
+            position absolute
+            width 2px
+            height 5px
+            background-color $bg-color
       .content
+        height 400px
         padding 10px 20px 40px
     .bottom
       text-align center

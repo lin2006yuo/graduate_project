@@ -319,7 +319,7 @@ export default {
             &.active
                 font-size 18px
                 font-weight bold
-                color $bg-color
+                color #ab4d72
     .container
         width 600px
         margin 20px auto 0

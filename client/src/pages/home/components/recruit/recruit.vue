@@ -1,5 +1,6 @@
 <template>
     <div class="recruit">
+        <div class="top-bg"></div>
         <div class="sort">
             <div class="row" :class="{show: isShowMore}">
                 <span>所属学院：</span>
@@ -26,7 +27,7 @@
                         <span>-{{item.category[0]}}</span><span v-if="item.category[1]">...</span></p>
                         <span class="money">{{item.salary}}/天</span>
                         <span class="day">{{item.day}}个月</span>
-                        <img class="logo" src="./img/logo.jpg" alt="">
+                        <img class="logo" :src="`http://${item.companyId.avatar}`" alt="">
                     </a>
                 </li>
             </ul>
@@ -34,7 +35,7 @@
                 <el-pagination
                     layout="prev, pager, next"
                     :total="resumeCount"
-                    :page-size="9"
+                    :page-size="10"
                     @current-change="pageChangeHandle"
                     class="pagi">
                 </el-pagination>
@@ -131,8 +132,18 @@ export default {
 @import '~assets/css/mixin.styl'
 .recruit
     width 960px
-    margin 20px auto 0
+    margin 0 auto 0
+    .top-bg {
+        height 80px
+        width 100%
+        position absolute
+        left 0
+        top 0
+        background center center / cover url("~@/assets/img/bg_1.png")
+        z-index 100
+    }
     .sort
+        padding-top 100px
         .row
             height 30px
             line-height 30px
@@ -149,22 +160,23 @@ export default {
                 &.choose
                     font-size 14px 
                     font-weight normal
-                    color $bg-color
+                    color #333
             .choose-box
                 display inline-block
-                background-color $bg-color-light
+                background-color #b54744
                 margin-right 10px
                 line-height 20px
                 // vertical-align 5
                 padding 0 5px
+                color #f5f5f5
                 border-radius 3px
                 span
                     margin-right 10px
                 i
                     cursor pointer
-                    color $bg-color
+                    color #fff
                     &:hover
-                        color $bg-color-hover
+                        color #fff
             .list
                 width 750px
                 float left
@@ -186,7 +198,7 @@ export default {
                     cursor pointer
                     background-color #fff
                     &:hover
-                        color $bg-color
+                        color #b54744
             .more
                 position absolute
                 width 30px
@@ -203,23 +215,25 @@ export default {
         padding 0 20px
         .main-list
             width 930px
-            height 390px
             clearfix()
             .item
+                padding 20px
                 .link
                     display block
                 box-sizing border-box
-                padding 15px 5px
                 margin-left 10px
                 width 300px
                 float left
                 margin-bottom 20px
-                background-color #f4f4f4
+                background-color #fff
                 position relative
                 border-radius 5px
                 cursor pointer
+                box-shadow 0 1px 1px 0 rgba(0,0,0,0.2)
+                transition all 0.2s
                 &:hover
-                    box-shadow 0 1px 3px 0 rgba(0,0,0,0.2)
+                    transform translate3d(0,-1px, 0)
+                    box-shadow 0 1px 8px 0 rgba(0,0,0,0.2)
                 .title
                     font-size 16px
                     color #333
@@ -228,7 +242,7 @@ export default {
                     line-height 24px
                     color #666
                     span:nth-child(1)
-                        color $bg-color
+                        color #333
                 .money
                     line-height 24px
                     font-size 14px

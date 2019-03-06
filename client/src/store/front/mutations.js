@@ -2,10 +2,10 @@ import * as types from './mutation-types'
 
 const mutations = {
     [types.SET_STUDENT](state, student){
-        state.student = student
+        state.student = {...state.student, ...student}
     },
     [types.SET_COMPANY](state, company) {
-        state.company = company
+        state.company = {...state.company, ...company}
     },
     [types.SET_STUDENT_HASJL](state, hasJl){
         state.student.hasJl = hasJl
@@ -18,6 +18,9 @@ const mutations = {
     },
     [types.SET_RESUME](state, resume){
         state.resume = resume
+    },
+    [types.SET_JL](state, jl) {
+        state.jl = jl
     }
 }
 

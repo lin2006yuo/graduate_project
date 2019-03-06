@@ -24,6 +24,9 @@
 </template>
 
 <script type="text/ecmascript-6">
+import { mofifyStudentPwd } from '@/api/front'
+import {mapMutations,mapActions, mapGetters} from 'vuex'
+
 export default {
     data() {
       var validatePass2 = (rule, value, callback) => {
@@ -48,12 +51,32 @@ export default {
             }
         };
     },
+    computed: {
+        ...mapGetters([
+            'companyInfo',
+            'studentInfo'
+        ]),
+        isCompany() {
+            if(this.studentInfo._id) {
+                return false 
+            } else {
+                return true
+            }
+        }
+    },
     components: {},
     methods: {
         submitForm(formName){
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    alert('submit!');
+                    const _id = this.isCompany ? this.companyInfo._id : this.studentInfo._id
+                    mofifyStudentPwd({ _id, pwd: this.form.oldpwd,  newPwd: this.form.checkpwd, isCompany: this.isCompany}).then(res => {
+                        if(res.code === 1) {
+                            this.$message({ type: 'error', message: res.msg })
+                        } else if(res.code === 0) {
+                            this.$message({ type: 'success', message: res.msg })
+                        }
+                    })
                 } else {
                     console.log('error submit!!');
                     return false;

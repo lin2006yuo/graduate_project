@@ -28,9 +28,16 @@
             >
             </el-table-column>
             <el-table-column
-              prop="recruit"
+              prop="title"
               label="应聘信息"
             >
+            </el-table-column>
+            <el-table-column
+              label="状态"
+            >
+              <template slot-scope="scope">
+                {{ scope.row.status | status }}
+              </template>
             </el-table-column>
             <el-table-column
               prop="crud"
@@ -41,7 +48,7 @@
                 <el-button
                   type="text"
                   size="small"
-                  @click="showDetailHandle"
+                  @click="showDetailHandle(scope.$index)"
                 >查看</el-button>
               </template>
             </el-table-column>
@@ -49,7 +56,9 @@
           <div class="block">
             <el-pagination
               layout="prev, pager, next"
-              :total="50"
+              :total="count"
+              :page-size="6"
+              @current-change="handleCurrentChange"
             >
             </el-pagination>
           </div>
@@ -72,7 +81,7 @@
           </div>
         </div>
         <div class="d-main">
-          <h1 class="d-title">XXX公司招聘aa实习生</h1>
+          <h1 class="d-title">{{userData.title}}</h1>
           <p class="p1">
             <span>姓名：<small>{{userData.name}}</small></span>
             <span>性别：<small>{{userData.sex}}</small></span>
@@ -80,7 +89,7 @@
             <span>出生年月：<small>{{userData.birthday}}</small></span>
           </p>
           <p class="p1">
-            <span>现居地：<small>{{userData.city}}</small></span>
+            <span>现居地：<small>{{userData.city[0]}}&nbsp;|&nbsp;{{userData.city[1]}}</small></span>
             <span>电话号码：<small>{{userData.phone}}</small></span>
             <span>QQ：<small>{{userData.qq}}</small></span>
             <span>邮箱：<small>{{userData.mail}}</small></span>
@@ -93,22 +102,23 @@
             <span>成绩排名：<small>{{userData.rank}}</small></span>
           </p>
           <p class="p1">
-            <span>期待工作地：<small>{{userData.excepCity}}</small></span>
+            <span>期待工作地：<small>{{userData.excepCity[0][0]}}</small></span>
             <span>期待薪酬：<small>{{userData.excepMon}}</small></span>
           </p>
           <p class="p1">
             <span>技能证书：<small>{{userData.certificate}}</small></span>
-            <span>语言技能：<small>{{userData.lang}}</small></span>
+            <span>语言技能：<small>{{userData.lang.name}}&nbsp;|&nbsp;{{userData.lang.score}}</small></span>
           </p>
           <div class="textarea">
             <div class="p-title">技能专业描述</div>
             <div class="text">
-              dsadsads
+              {{userData.textarea}}
             </div>
           </div>
         </div>
         <div class="d-bottom">
-          <el-button type="primary">通过</el-button>
+          <el-button type="primary" @click="pass(2)">通过</el-button>
+          <el-button type="info" @click="pass(0)">放弃</el-button>
         </div>
       </div>
     </div>
@@ -116,43 +126,12 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getResumeByCompanyId } from "@/api/front";
+import { getResumeByCompanyId, passJl } from "@/api/front";
 import { mapState } from "vuex";
 export default {
   data() {
     return {
-      tableData: [
-        {
-          academy: "信息科学与工程学院",
-          name: "王小虎",
-          recruit: "XXX公司招聘aa实习生"
-        },
-        {
-          academy: "信息科学与工程学院",
-          name: "王小虎",
-          recruit: "XXX公司招聘aa实习生"
-        },
-        {
-          academy: "信息科学与工程学院",
-          name: "王小虎",
-          recruit: "XXX公司招聘aa实习生"
-        },
-        {
-          academy: "数统学院",
-          name: "王小虎",
-          recruit: "XXX公司招聘aa实习生"
-        },
-        {
-          academy: "数统学院",
-          name: "王小虎",
-          recruit: "XXX公司招聘aa实习生"
-        },
-        {
-          academy: "数统学院",
-          name: "王小虎",
-          recruit: "XXX公司招聘aa实习生"
-        }
-      ],
+      tableData: [],
       showDetail: false,
       userData: {
         name: "林学裕",
@@ -172,13 +151,26 @@ export default {
         excepMon: "5000K",
         certificate: "计算机二级",
         lang: "大学英语六级425"
-      }
+      },
+      currentJlId: '',
+      page: 1,
+      count: 0
     };
   },
   mounted() {
-    getResumeByCompanyId(this.company._id).then(res => {
-      console.log(res);
-    });
+    this.reset()
+    this.init()
+  },
+  filters: {
+    status(value) {
+      if(value === 2) {
+        return '通过'
+      } else if (value === 1) {
+        return '待审核'
+      } else if(value === 0) {
+        return '未通过'
+      } 
+    }
   },
   computed: {
     ...mapState({
@@ -187,8 +179,50 @@ export default {
   },
   components: {},
   methods: {
-    showDetailHandle() {
+    init() {
+      getResumeByCompanyId(this.company._id, this.page).then(res => {
+        if(res.code === 0) {
+          this.tableData = this.handleTableData(res.data.data)
+          this.count = res.data.count
+        }
+      });
+    },
+    reset() {
+      this.page = 1
+    },
+    showDetailHandle(index) {
+      this.userData = this.tableData[index].jlInfo
+      this.currentJlId = this.tableData[index].id
       this.showDetail = true;
+    },
+    handleCurrentChange(index) {
+      this.page = index
+      this.init()
+    },
+    handleTableData(arr) {
+      return arr.filter(c => {
+        if(Object.prototype.toString.call(c) !== '[object Object]') return false
+        return true
+      }).map(c => {
+            const tableItem = {}
+            tableItem.name = c.studentId.name
+            tableItem.academy = c.studentId.academy
+            tableItem.title = c.recruitId.title
+            tableItem.jlInfo = {...c.jlId, ...c.studentId, title: c.recruitId.title}
+            tableItem.id = c._id
+            tableItem.status = c.status
+            return tableItem
+      })
+    },
+    pass(pass) {
+      // pass 1, unpass 0
+      const str = pass === 2 ? '确定要通过吗？' : '确定要放弃吗？'
+      this.$confirm(str, '提示', { type: 'warning' }).then(() => {
+          const id = this.currentJlId
+          passJl({id, pass}).then(res => {
+            console.log(pass)
+          })
+      }).catch(() => {})
     }
   }
 };
@@ -221,7 +255,7 @@ export default {
           width 4px
           height 40px
           border-radius 5px
-          background-color $bg-color
+          background-color #ab4d72
         h1
           display inline-block
           font-size 20px

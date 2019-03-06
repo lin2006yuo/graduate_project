@@ -11,7 +11,7 @@ const resumeSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'companyModel'
     },
-    
+    date: { type: Date, default: Date.now() }
 })
 
 module.exports = resumeSchema

@@ -177,7 +177,7 @@ router.get('/getProvince', function (req, res) {
     fs.readFile('./static/city.json', 'utf-8', function (err, data) {
         if(err){
             res.json({code: 1, msg: '获取失败', err: err})
-        }else{
+        }else{ 
             var dataObj = JSON.parse(data)
             res.json({ code: 0, msg: '获取成功', data: dataObj})
         }
