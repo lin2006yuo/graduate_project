@@ -9,6 +9,7 @@
             :new-message="message" 
             :initial-feed="feed"
             @newOwnMessage="send"
+            :send-flag="login"
         />
         <!-- <footer></footer> -->
     </div>
@@ -17,42 +18,58 @@
 <script type="text/ecmascript-6">
 import Navgator from 'components/navigator/navigator'
 import BasicVueChat from 'components/basic-vue-chat/BasicVueChat.vue'
-import { mapState } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
     data() {
         return {
             message: {
-                
+
             },
             feed: [
                 {
-                id: 0,
-                author: 'Person',
-                contents: 'hi there',
-                date: '16:30'
+                    id: 0,
+                    author: 'Person',
+                    contents: 'hi there',
+                    date: '16:30'
                 },
                 {
-                id: 1,
-                author: 'Me',
-                contents: 'hello',
-                date: '16:30'
+                    id: 1,
+                    author: 'Me',
+                    contents: 'hello',
+                    date: '16:30'
                 }
-            ]
+            ],
+            login: false
         };
     },
     computed: {
-        ...mapState({
-            student: state => state.front.student,
-            company: state => state.front.company
-        })
+        ...mapGetters([
+            'studentInfo',
+            'companyInfo'
+        ])
+    },
+    mounted() {
+            setTimeout(() => {
+                if(this.studentInfo._id || this.studentInfo._id) {
+                    this.login = true
+                }
+            }, 200)
     },
     methods: {
-        send() {
-            if(!this.student._id && !this.company._id) return this.$message('请登录...')
-            if(this.student._id && !this.company._id) {
-                
-            }
+        ...mapActions([
+           'sendMsg' 
+        ]),
+        send(message) {
+            if(!this.login) return this.$message('请登录...')
+            const from = this.studentInfo._id
+            // @MOCK to:5ba0a1bd986c8b4fa4eb86bb
+            const to = '5ba0a1bd986c8b4fa4eb86bb'
+                this.sendMsg({
+                    from,
+                    to,
+                    content: message
+                })
         }
     },
     components: {

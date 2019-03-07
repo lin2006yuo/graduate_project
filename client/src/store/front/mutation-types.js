@@ -13,3 +13,6 @@ export const SET_JL = 'SET_JL'
 
 //修改学生信息hasJl
 export const SET_STUDENT_HASJL = 'SET_STUDENT_HASJL'
+
+export const RECEIVE_MSG_LIST = 'receive_msg_list'
+export const RECEIVE_MSG = 'receive_msg'

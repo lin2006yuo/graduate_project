@@ -3,7 +3,11 @@ const state = {
     company:{},
     resume: [],
     jl: {},
-    chat: {}
+    chat: {
+        users: {},
+        chatMsg: [],
+        unReadCound: ''
+    }
 }
 
 export default state

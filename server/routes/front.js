@@ -417,23 +417,31 @@ router.post('/readmsg', async (req, res) => {
 });
 
 router.get('/msglist', function(req, res) {     
-    const id = req.body.id
-    const type = req.body.type
-    const model = {}
-    if(type === 'student') {
-        model = db.studentModel
-    } else {
-        model = db.companyModel
-    }
-    model.find((err, userDocs) => {
-            const users = {}        
-            userDocs.forEach(doc => {            
-                users[doc._id] = { username: doc.name || doc.companyName, avatar: doc.avatar }        
-            })
-            db.chatModel.find({'$or': [{from: id}, {to: id}]}, filter, function(err, chatMsg) {            
-                res.send({ code: 0, data: { users, chatMsg } })        
-            })    
-    })
+    const id = mongoose.Types.ObjectId(req.query.id)
+    db.chatModel
+        .find({'$or': [{from: id}, {to: id}]})
+        .exec(async (err, msg) => {
+           if(!err) {
+                const from = mongoose.Types.ObjectId(msg[0].from)
+                const to = mongoose.Types.ObjectId(msg[0].to)
+                let studentInfo = {}
+                let companyInfo = {}
+                studentInfo = await db.studentModel.findById(to, 'name avatar')
+                if(studentInfo) {
+                    companyInfo = await db.companyModel.findById(from, 'companyName avatart')
+                } else {
+                    studentInfo = await db.studentModel.findById(from, 'name avatar')
+                    companyInfo = await db.companyModel.findById(to, 'companyName avatart')
+                }
+                return res.json({ code: 0, data: {
+                    chator: {
+                        student: studentInfo,
+                        company: companyInfo
+                    },
+                    chat_msg: msg
+                }})
+           }
+        })
 })
 
 router.get('/getchatlist', function(req, res) {

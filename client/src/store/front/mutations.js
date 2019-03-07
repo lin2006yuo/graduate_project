@@ -21,6 +21,14 @@ const mutations = {
     },
     [types.SET_JL](state, jl) {
         state.jl = jl
+    },
+    [types.RECEIVE_MSG](state, msg) {
+        state.chatMsg.push(msg)
+    },
+    [types.RECEIVE_MSG_LIST](state, {users, chatMsg}) {
+        state.users = users
+        state.chatMsg = chatMsg
+        state.unReadCound = 0
     }
 }
 

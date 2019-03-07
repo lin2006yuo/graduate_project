@@ -309,3 +309,16 @@ export function passJl(params) {
             return Promise.reject(err)
           })
 }
+
+
+export function getmsglist ({id, type}) {
+  const url = 'http://localhost:3000/front/msglist'
+  return axios
+          .get(url, { params: { id, type }})
+          .then(res => {
+            return Promise.resolve(res.data)
+          })
+          .catch(err => {
+            return Promise.reject(err)
+          })
+}

@@ -79,7 +79,8 @@ export default {
         return {}
       },
       required: false
-    }
+    },
+    sendFlag: false
   },
   data: function () {
     return {
@@ -118,6 +119,7 @@ export default {
       this.feed.push(element)
     },
     onNewOwnMessage (message, image, imageUrl) {
+      if(!this.sendFlag) return this.$emit('newOwnMessage', message)
       const newOwnMessage = {
         id: this.authorId,
         contents: message,
