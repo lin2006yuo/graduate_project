@@ -1,6 +1,8 @@
 import * as types from './mutation-types'
 import socket from '@/socket/'
-import { getmsglist } from '@/api/front'
+import { getchatlist, getmsglist } from '@/api/front'
+import { companyInfo } from './getters';
+import moment from 'moment'
 
 //退出登陆时，删除学生和公司信息
 // export const delUserInfo = function ({ commit}) {
@@ -10,22 +12,36 @@ import { getmsglist } from '@/api/front'
 
  function initSocket(commit, userid) {
     socket.on('receiveMsg', function (data) {
-        if(userid === data.from || userid === data.to){
-            commit(types.RECEIVE_MSG, data)
-        }
+        // if(data.to !== userid) return 
+        commit(types.RECEIVE_MSG, data)
     })
 }
 
-export const getMsgList = async function({commit}, userid) {
-    initSocket(commit, userid)
-    const { data: result } = await getmsglist()
-    if(result.code === 0) {
-        const { users, chatMsg } = result.data
-        commit(types.RECEIVE_MSG_LIST, {users, chatMsg})
-    }
+export const initChatList = async ({commit}, {from, role}) => {
+    initSocket(commit,from)
+    const { data: result } = await getchatlist(from, role)
+    commit(types.RECEIVE_CHAT_LIST, result)
+    
 }
 
-export const sendMsg = ({commit}, {from, to, content}) => {
-    console.log(from, to, content)
+export const sendMsg = ({commit}, {from, to, content, message}) => {
     socket.emit('sendMsg', {from, to, content})
+    commit(types.POST_MESSAGE, message)
+}
+
+export const getMsgList = ({commit, state}, info) => {
+    commit(types.SET_CURRENT_CHATOR, info)
+    const from = state.student._id ? state.student._id : state.company._id
+    const to = info._id
+    return getmsglist(from, to).then(res => {
+        const { chatlist } = res.data
+        chatlist.forEach(msg => {
+            const userid = state.student._id || state.company._id
+            msg.id = msg.from === userid ? 0 : 1
+            msg.create_time = moment(res.create_time).format("HH:mm:ss")
+            msg.contents = msg.content
+            msg.author = state.student._id ? state.student.name : state.company.companyName
+        })
+        commit(types.SET_MESSAGE_LIST, chatlist)
+    })
 }

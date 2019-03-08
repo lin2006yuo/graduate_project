@@ -40,6 +40,7 @@
 <script type="text/ecmascript-6">
 import {getUserInfo, loginout, getJl} from  'api/front'
 import {mapMutations,mapActions, mapGetters} from 'vuex'
+import * as types from "@/store/front/mutation-types"
 
 export default {
     data() {
@@ -113,6 +114,7 @@ export default {
                     //清空vuex
                     this.delStudent()
                     this.delCompany()
+                    this.logout()
                 }
             }).catch(err => {
                 console.log(err);
@@ -132,7 +134,8 @@ export default {
             setCompany: 'SET_COMPANY',
             delStudent: 'DEL_STUDENT',
             delCompany: 'DEL_COMPANY',
-            setJl: 'SET_JL'
+            setJl: 'SET_JL',
+            logout: types.LOGINOUT
         }),
     }
 };

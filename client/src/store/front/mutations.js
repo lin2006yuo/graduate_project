@@ -16,6 +16,12 @@ const mutations = {
     [types.DEL_STUDENT](state){
         state.student = {}
     },
+    [types.LOGINOUT](state) {
+        state.chatlist = []
+        state.currentChator = {},
+        state.message = {},
+        state.msglist = []
+    },
     [types.SET_RESUME](state, resume){
         state.resume = resume
     },
@@ -23,12 +29,19 @@ const mutations = {
         state.jl = jl
     },
     [types.RECEIVE_MSG](state, msg) {
-        state.chatMsg.push(msg)
+        state.message = msg
     },
-    [types.RECEIVE_MSG_LIST](state, {users, chatMsg}) {
-        state.users = users
-        state.chatMsg = chatMsg
-        state.unReadCound = 0
+    [types.RECEIVE_CHAT_LIST](state, chatlist) {
+        state.chatlist = chatlist
+    },
+    [types.SET_CURRENT_CHATOR](state, chator) {
+        state.currentChator = chator
+    },
+    [types.SET_MESSAGE_LIST](state, msglist) {
+        state.msglist = msglist
+    },
+    [types.POST_MESSAGE](state, message) {
+        state.msglist.push(message)
     }
 }
 

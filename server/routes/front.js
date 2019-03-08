@@ -410,61 +410,136 @@ router.post("/passJl", function(req, res) {
 router.post('/readmsg', async (req, res) => {    
     const from = req.body.from    
     const to = req.body.to
+    const chat_id = [from, to].sort().join('_')
+
+   
+
     Chat.update({ from, to, read: false }, { read: true }, { multi: true }, function(err, doc) {
         console.log('/readmsg', msg)
         res.send({ code: 0, data: doc.nModified })
     })
 });
 
-router.get('/msglist', function(req, res) {     
-    const id = mongoose.Types.ObjectId(req.query.id)
+router.get('/msglist', function(req, res) {   
+    const from = req.query.from
+    const to = req.query.to
+    const chat_id = [from, to].sort().join('_')
     db.chatModel
-        .find({'$or': [{from: id}, {to: id}]})
-        .exec(async (err, msg) => {
-           if(!err) {
-                const from = mongoose.Types.ObjectId(msg[0].from)
-                const to = mongoose.Types.ObjectId(msg[0].to)
-                let studentInfo = {}
-                let companyInfo = {}
-                studentInfo = await db.studentModel.findById(to, 'name avatar')
-                if(studentInfo) {
-                    companyInfo = await db.companyModel.findById(from, 'companyName avatart')
-                } else {
-                    studentInfo = await db.studentModel.findById(from, 'name avatar')
-                    companyInfo = await db.companyModel.findById(to, 'companyName avatart')
-                }
-                return res.json({ code: 0, data: {
-                    chator: {
-                        student: studentInfo,
-                        company: companyInfo
-                    },
-                    chat_msg: msg
-                }})
-           }
+        .findOne({chat_id})
+        .exec((err, doc) => {
+            if(err) return console.log(err)
+            res.json({ type: 0, data: doc })
         })
+
+    
+
+    // const id = mongoose.Types.ObjectId(req.query.id)
+    // db.chatModel
+    //     .find({'$or': [{from: id}, {to: id}]})
+    //     .exec(async (err, msg) => {
+    //        if(!err) {
+    //             const from = mongoose.Types.ObjectId(msg[0].from)
+    //             const to = mongoose.Types.ObjectId(msg[0].to)
+    //             let studentInfo = {}
+    //             let companyInfo = {}
+    //             studentInfo = await db.studentModel.findById(to, 'name avatar')
+    //             if(studentInfo) {
+    //                 companyInfo = await db.companyModel.findById(from, 'companyName avatart')
+    //             } else {
+    //                 studentInfo = await db.studentModel.findById(from, 'name avatar')
+    //                 companyInfo = await db.companyModel.findById(to, 'companyName avatart')
+    //             }
+    //             return res.json({ code: 0, data: {
+    //                 chator: {
+    //                     student: studentInfo,
+    //                     company: companyInfo
+    //                 },
+    //                 chat_msg: msg
+    //             }})
+    //        }
+    //     })
 })
 
-router.get('/getchatlist', function(req, res) {
-    const id = req.query.id
-    db.chatListModel.find({from: id}, function(err, doc) {
-        if(err) {
-            res.json({code: 1, message: err})
-        } else {
-            res.json({ code: 0, data: doc })
-        }
+router.post('/createchat', async function(req, res) {
+    const from = req.body.from
+    const to = req.body.to
+    const from_deco = mongoose.Types.ObjectId(from)
+    const to_deco = mongoose.Types.ObjectId(to)
+    const chat_id = [from, to].sort().join('_')
+
+
+    const r_chat = await db.chatModel.findOne({chat_id})
+    if(r_chat) return res.json({code: 1, message: '已创建'})
+    new db.chatModel({ 
+        chatlist: [],
+        chator: {
+            creator: from_deco,
+            target: to_deco
+        },
+        chat_id
+    }).save(function(err, doc) { if(err) {console.log(err)}})
+
+    const fromResult  = await db.chatListModel.find({ owner: from })
+    const toResult  = await db.chatListModel.find({ owner: to })
+    if(!fromResult.length) {
+        new db.chatListModel({
+            owner: from,
+            chat_id: [ chat_id ]
+        }).save()
+    } else {
+        console.log('插入')
+        db.chatListModel.updateOne({owner: from}, { $push: {chat_id: chat_id}},function(err, doc){
+            if(err) return console.log(err)
+            console.log(doc)
+        })
+    }
+    if(!toResult.length) {
+        new db.chatListModel({
+            owner: to,
+            chat_id: [ chat_id ]
+        }).save()
+    } else {
+        db.chatListModel.updateOne({owner: to}, { $push:  {chat_id}})
+    }
+    res.json({code: 0})
+})
+
+router.post('/deletechator', function(req, res) {
+    const from = req.body.from
+    const to = req.body.to
+    const chat_id = [from, to].sort().join('_')
+    db.chatListModel.deleteOne({ owner: from }, { $pull: {
+        chat_id
+    }}, function(err, doc) {
+        if(err) return console.log(res)
+        res.json({ code: 0, data:doc })
     })
 })
 
-router.post('/addchator', function(req, res) {
-    const id = req.body.id
-    const target_id = mongoose.Types.ObjectId(req.body.targetId)
-    const type = req.body.type
-    if(type === 'student') {
-        db.chatListModel.create({
-            from: id,
-            studentList
+
+router.get('/getchatlist', async function(req, res) {
+    const from = req.query.from
+    const role = req.query.role
+    try {
+        const result = await db.chatListModel.findOne({ owner: from })
+        const _ids = []
+        const model = role === 'student' ? db.companyModel : db.studentModel
+        result.chat_id.forEach(obj => {
+            const arr = obj.split('_')
+            const _id = arr[0] === from ? mongoose.Types.ObjectId(arr[1]) : mongoose.Types.ObjectId(arr[0]) 
+            _ids.push(_id)
         })
+        model.find({ '_id': {
+            $in: _ids
+        }}, function(err, doc) {
+            if(err) return console.log(err)
+            res.json({ code: 0, data: doc})
+        })
+    } catch (ex) {
+        console.log(ex)
+        res.json({ code: 1, message: ex })
     }
 })
+
 
 module.exports = router

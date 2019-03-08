@@ -2,10 +2,7 @@
   <div class="recruit-page">
     <div class="top-bg"></div>
     <antitle></antitle>
-    <div
-      class="article"
-      v-if="recruit"
-    >
+    <div class="article" v-if="recruit">
       <div class="top">
         <p class="title">{{recruit.title}}</p>
         <div class="tip">
@@ -19,20 +16,23 @@
           </div>
           <div class="intro-item">名称: {{this.recruit.companyId.companyName}}</div>
           <div class="intro-item">简介: {{this.recruit.companyId.companyIntro}}</div>
-          <div class="intro-item">位置: {{this.recruit.companyId.position[0]}} - {{this.recruit.companyId.position[1]}}</div>
+          <div
+            class="intro-item"
+          >位置: {{this.recruit.companyId.position[0]}} - {{this.recruit.companyId.position[1]}}</div>
           <div class="intro-item">
-                联系方式: {{this.recruit.companyId.contact}} - {{this.recruit.companyId.phone}}
-                <span style="margin-left: 20px; color: #409EFF; cursor: pointer"><i class="iconfont el-icon-lianxi"></i>在线联系</span>
-            </div>
+            联系方式: {{this.recruit.companyId.contact}} - {{this.recruit.companyId.phone}}
+            <span
+              style="margin-left: 20px; color: #409EFF; cursor: pointer"
+              @click="contact"
+            >
+              <i class="iconfont el-icon-lianxi"></i>在线联系
+            </span>
+          </div>
         </div>
-        <div class="intro"
-            style="margin-top: 20px"
-        ><div class="title2">职位要求:</div></div>
-        <div
-          class="content"
-          v-html="recruit.content"
-        >
+        <div class="intro" style="margin-top: 20px">
+          <div class="title2">职位要求:</div>
         </div>
+        <div class="content" v-html="recruit.content"></div>
       </div>
       <div class="bottom">
         <el-button
@@ -48,8 +48,8 @@
 
 <script type="text/ecmascript-6">
 import Antitle from "components/antitle/antitle";
-import { submitJl, getResumeById } from "api/front";
-import { mapGetters, mapState } from "vuex";
+import { submitJl, getResumeById, createchat, getchatlist } from "api/front";
+import { mapGetters, mapState, mapActions } from "vuex";
 export default {
   data() {
     return {
@@ -62,11 +62,11 @@ export default {
 <p>段落元素由 p 标签定义。</p> `,
       recruit: "",
       fullscreenLoading: false,
-      hasSub: false,
+      hasSub: false
     };
   },
   computed: {
-    ...mapGetters(["studentInfo"]),
+    ...mapGetters(["studentInfo", "companyInfo"]),
     ...mapState({
       jl: state => state.front.jl
     })
@@ -97,7 +97,7 @@ export default {
   },
   activated() {
     this.recruit = this.$route.params.recruit;
-    console.log(this.recruit)
+    console.log(this.recruit);
   },
   components: {
     Antitle
@@ -135,74 +135,116 @@ export default {
         }
       }
     },
+    async contact() {
+      if (!this.studentInfo._id && !this.companyInfo._id) {
+        this.$message.error({
+          message: "您还未登陆，请登陆"
+        });
+      } else if (!this.studentInfo._id && this.companyInfo._id) {
+        this.$message.warning({message: '企业无法联系企业~'})
+      } else {
+        const from = this.studentInfo._id;
+        const to = this.recruit.companyId._id;
+        const role = "student";
+        await createchat({ from, to });
+        this.initChatList({ from, role });
+        this.getMsgList(this.recruit.companyId);
+      }
+    },
     hasSubmit(arr, id) {
       return arr.some(v => v.recruitId._id === id && v.status === 1);
-    }
+    },
+    ...mapActions(["initChatList", "getMsgList"])
   }
 };
 </script>
 
 <style scoped lang="stylus">
-@import '~assets/css/variable.styl'
+@import '~assets/css/variable.styl';
 
-.recruit-page
-  border-left 1px solid #eaeaea
-  border-right 1px solid #eaeaea
-  width 960px
-  height 600px
-  margin 0 auto 0
-  border-radius 5px
-  padding 10px 40px
+.recruit-page {
+  border-left: 1px solid #eaeaea;
+  border-right: 1px solid #eaeaea;
+  width: 960px;
+  height: 600px;
+  margin: 0 auto 0;
+  border-radius: 5px;
+  padding: 10px 40px;
+
   .top-bg {
-      height 80px
-      width 100%
-      position absolute
-      left 0
-      top 0
-      background center center / cover url("~@/assets/img/bg_1.png")
-      z-index 100
+    height: 80px;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: center center / cover url('~@/assets/img/bg_1.png');
+    z-index: 100;
   }
-  .article
-    width 100%
-    margin-top 20px
-    background-color #fdfdfd
-    padding 10px 10px
-    font-size 14px
-    position relative
-    box-sizing border-box
-    .top
-      width 100%
-      .title
-        text-align center
-        line-height 50px
-        font-size 24px
-        border-bottom 1px solid #ddd
-      .tip
-        padding 10px 0 10px 10px
-        color #666
-        span
-          display inline-block
-          padding 10px
-          font-size 15px
-      .intro
-        padding 0 20px
-        .title2
-          display inline-block
-          font-size 18px
-          color #8a3c5b
-        .intro-item 
-          margin 5px 0
-        span
-          position relative
-          &:after
-            content "",
-            position absolute
-            width 2px
-            height 5px
-            background-color $bg-color
-      .content
-        height 400px
-        padding 10px 20px 40px
-    .bottom
-      text-align center
+
+  .article {
+    width: 100%;
+    margin-top: 20px;
+    background-color: #fdfdfd;
+    padding: 10px 10px;
+    font-size: 14px;
+    position: relative;
+    box-sizing: border-box;
+
+    .top {
+      width: 100%;
+
+      .title {
+        text-align: center;
+        line-height: 50px;
+        font-size: 24px;
+        border-bottom: 1px solid #ddd;
+      }
+
+      .tip {
+        padding: 10px 0 10px 10px;
+        color: #666;
+
+        span {
+          display: inline-block;
+          padding: 10px;
+          font-size: 15px;
+        }
+      }
+
+      .intro {
+        padding: 0 20px;
+
+        .title2 {
+          display: inline-block;
+          font-size: 18px;
+          color: #8a3c5b;
+        }
+
+        .intro-item {
+          margin: 5px 0;
+        }
+
+        span {
+          position: relative;
+
+          &:after {
+            content: '', position absolute;
+            width: 2px;
+            height: 5px;
+            background-color: $bg-color;
+          }
+        }
+      }
+
+      .content {
+        height: 400px;
+        padding: 10px 20px 40px;
+      }
+    }
+
+    .bottom {
+      text-align: center;
+    }
+  }
+}
 </style>

@@ -3,11 +3,10 @@ const state = {
     company:{},
     resume: [],
     jl: {},
-    chat: {
-        users: {},
-        chatMsg: [],
-        unReadCound: ''
-    }
+    chatlist: [],
+    msglist: [],
+    currentChator: {},
+    message: {}
 }
 
 export default state

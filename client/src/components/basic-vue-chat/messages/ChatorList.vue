@@ -1,7 +1,7 @@
 <template>
     <div class="chator-list">
-        <div class="chator">
-            <img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1551712864263&di=97d9f8ff20f677cb513caf569ca54ea2&imgtype=0&src=http%3A%2F%2Fimg5.duitang.com%2Fuploads%2Fitem%2F201410%2F02%2F20141002212239_zWR55.jpeg" alt="">
+        <div class="chator" v-for="(item, index) in chatList" :key="`chator-${index}`">
+            <img :src="`http://${item.avatar}`" alt="" @click="handleClick(item)">
             <i class="el-icon-error icon"></i>
         </div>
     </div>
@@ -13,6 +13,12 @@ export default {
         chatorList: {
             type: Array,
             default: () => []
+        },
+        chatList: Array
+    },
+    methods: {
+        handleClick(item) {
+            this.$emit('click', item)
         }
     }
 }

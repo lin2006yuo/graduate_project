@@ -6,7 +6,6 @@ const chatSchema = new Schema({
         {
             from: { type: String, required: true },
             to: { type: String, required: true },
-            from: { type: String, required: true },
             read: { type: Boolean, default: false },
             create_time: { type: Number },
             content: { type: String, required: true },

@@ -310,15 +310,38 @@ export function passJl(params) {
           })
 }
 
-
-export function getmsglist ({id, type}) {
+export function getmsglist (from, to) {
   const url = 'http://localhost:3000/front/msglist'
   return axios
-          .get(url, { params: { id, type }})
+          .get(url, { params: { from, to }})
           .then(res => {
             return Promise.resolve(res.data)
           })
           .catch(err => {
             return Promise.reject(err)
           })
+}
+
+export function getchatlist(from, role) {
+  const url = 'http://localhost:3000/front/getchatlist'
+  return axios
+            .get(url, { params: { from, role }})
+            .then(res => {
+              return Promise.resolve(res.data)
+            })
+            .catch(err => {
+              return Promise.reject(err)
+            })
+}
+
+export function createchat({from, to}) {
+  const url = 'http://localhost:3000/front/createchat'
+  return axios
+            .post(url, { from, to })
+            .then(res => {
+              return Promise.resolve(res.data)
+            })
+            .catch(err => {
+              return Promise.reject(err)
+            })
 }

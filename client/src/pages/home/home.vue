@@ -6,10 +6,13 @@
         </keep-alive>
         <basic-vue-chat 
             class="chat" 
-            :new-message="message" 
-            :initial-feed="feed"
+            ref="vuechat"
+            :initial-feed="msgList"
             @newOwnMessage="send"
+            @click="handleClick"
+            :chat-list="chatList"
             :send-flag="login"
+            :title="title"
         />
         <!-- <footer></footer> -->
     </div>
@@ -18,14 +21,13 @@
 <script type="text/ecmascript-6">
 import Navgator from 'components/navigator/navigator'
 import BasicVueChat from 'components/basic-vue-chat/BasicVueChat.vue'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
+import * as types from '@/store/front/mutation-types'
+import moment from 'moment'
 
 export default {
     data() {
         return {
-            message: {
-
-            },
             feed: [
                 {
                     id: 0,
@@ -46,34 +48,72 @@ export default {
     computed: {
         ...mapGetters([
             'studentInfo',
-            'companyInfo'
-        ])
+            'companyInfo',
+            "chatList",
+            "currentChator",
+            "message",
+            "msgList"
+        ]),
+        title() {
+            return this.currentChator.name ? this.currentChator.name : this.currentChator.companyName
+        }
     },
     mounted() {
             setTimeout(() => {
-                if(this.studentInfo._id || this.studentInfo._id) {
+                if(this.studentInfo._id || this.companyInfo._id) {
                     this.login = true
+                    if(this.login) {
+                        let from,role
+                        if(this.studentInfo._id) {
+                            from = this.studentInfo._id,
+                            role = 'student'
+                        } else {
+                            from = this.companyInfo._id
+                            role = 'company'
+                        }
+                        this.initChatList({from, role})
+                    }
                 }
             }, 200)
     },
     methods: {
         ...mapActions([
-           'sendMsg' 
+           'sendMsg',
+           'getMsgList',
+           'initChatList'
         ]),
+        ...mapMutations({
+            'setCurrentChator': types.SET_CURRENT_CHATOR
+        }),
         send(message) {
             if(!this.login) return this.$message('请登录...')
-            const from = this.studentInfo._id
-            // @MOCK to:5ba0a1bd986c8b4fa4eb86bb
-            const to = '5ba0a1bd986c8b4fa4eb86bb'
-                this.sendMsg({
-                    from,
-                    to,
-                    content: message
-                })
+            const from = this.studentInfo._id ? this.studentInfo._id : this.companyInfo._id
+            const to = this.currentChator._id
+            this.sendMsg({from, to, content: message.contents, message})
+        },
+        handleClick(item) {
+            this.getMsgList(item)
         }
     },
     components: {
         Navgator,BasicVueChat
+    },
+    watch: {
+        'message.create_time'(val) {
+            const msg = {
+                id: 1,
+                author: 'Person',
+                contents: this.message.content,
+                date: moment(val.create_time).format("HH:mm:ss")
+            }
+            this.feed.push(msg)
+            this.$refs.vuechat.toBottom()
+        },
+        'msgList'(val) {
+                this.$nextTick(() => {
+                    this.$refs.vuechat.toBottom()
+                })
+        }
     }
 };
 </script>
