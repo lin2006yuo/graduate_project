@@ -426,6 +426,8 @@ router.get('/msglist', function(req, res) {
     const chat_id = [from, to].sort().join('_')
     db.chatModel
         .findOne({chat_id})
+        .populate('studentModel')
+        .populate('companyModel')
         .exec((err, doc) => {
             if(err) return console.log(err)
             res.json({ type: 0, data: doc })

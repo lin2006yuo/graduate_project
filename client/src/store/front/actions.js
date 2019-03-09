@@ -40,7 +40,8 @@ export const getMsgList = ({commit, state}, info) => {
             msg.id = msg.from === userid ? 0 : 1
             msg.create_time = moment(res.create_time).format("HH:mm:ss")
             msg.contents = msg.content
-            msg.author = state.student._id ? state.student.name : state.company.companyName
+            msg.author = msg.from === state.student._id ? state.student.name : state.currentChator.companyName
+            // msg.imageUrl = msg.from === state.student._id ? 'http://' + state.student.avatar : 'http://' + state.currentChator.avatar
         })
         commit(types.SET_MESSAGE_LIST, chatlist)
     })
