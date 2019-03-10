@@ -10,15 +10,22 @@ import moment from 'moment'
 //     commit(types.DEL_COMPANY)
 // }
 
- function initSocket(commit, userid) {
-    socket.on('receiveMsg', function (data) {
+ function initSocket(commit,state, userid) {
+    socket.on('receiveMsg', function (msg) {
+        console.log(msg)
         // if(data.to !== userid) return 
-        commit(types.RECEIVE_MSG, data)
+        const userid = state.student._id || state.company._id
+        msg.id = msg.from === userid ? 0 : 1
+        msg.date = moment(msg.create_time).format("HH:mm:ss")
+        msg.contents = msg.content
+        msg.author = msg.from === state.student._id ? state.student.name : state.currentChator.companyName
+        commit(types.RECEIVE_MSG, msg)
+        commit(types.POST_MESSAGE, msg)
     })
 }
 
-export const initChatList = async ({commit}, {from, role}) => {
-    initSocket(commit,from)
+export const initChatList = async ({commit, state}, {from, role}) => {
+    initSocket(commit,state,from)
     const { data: result } = await getchatlist(from, role)
     commit(types.RECEIVE_CHAT_LIST, result)
     
@@ -26,7 +33,6 @@ export const initChatList = async ({commit}, {from, role}) => {
 
 export const sendMsg = ({commit}, {from, to, content, message}) => {
     socket.emit('sendMsg', {from, to, content})
-    commit(types.POST_MESSAGE, message)
 }
 
 export const getMsgList = ({commit, state}, info) => {
@@ -36,9 +42,10 @@ export const getMsgList = ({commit, state}, info) => {
     return getmsglist(from, to).then(res => {
         const { chatlist } = res.data
         chatlist.forEach(msg => {
+            console.log(msg.create_time)
             const userid = state.student._id || state.company._id
             msg.id = msg.from === userid ? 0 : 1
-            msg.create_time = moment(res.create_time).format("HH:mm:ss")
+            msg.date = moment(msg.create_time).format("HH:mm:ss")
             msg.contents = msg.content
             msg.author = msg.from === state.student._id ? state.student.name : state.currentChator.companyName
             // msg.imageUrl = msg.from === state.student._id ? 'http://' + state.student.avatar : 'http://' + state.currentChator.avatar

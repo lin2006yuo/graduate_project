@@ -99,16 +99,16 @@ export default {
         Navgator,BasicVueChat
     },
     watch: {
-        'message.create_time'(val) {
-            const msg = {
-                id: 1,
-                author: 'Person',
-                contents: this.message.content,
-                date: moment(val.create_time).format("HH:mm:ss")
-            }
-            this.feed.push(msg)
-            this.$refs.vuechat.toBottom()
-        },
+        // 'message.create_time'(val) {
+        //     const msg = {
+        //         id: 1,
+        //         author: 'Person',
+        //         contents: this.message.content,
+        //         date: moment(val.create_time).format("HH:mm:ss")
+        //     }
+        //     this.feed.push(msg)
+        //     this.$refs.vuechat.toBottom()
+        // },
         'msgList'(val) {
                 this.$nextTick(() => {
                     this.$refs.vuechat.toBottom()
