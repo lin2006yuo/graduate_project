@@ -470,8 +470,8 @@ router.post('/createchat', async function(req, res) {
     const chat_id = [from, to].sort().join('_')
 
 
-    const r_chat = await db.chatModel.findOne({chat_id})
-    if(r_chat) return res.json({code: 1, message: '已创建'})
+    // const r_chat = await db.chatListModel.findOne({owner: from})
+    // if(r_chat) return res.json({code: 1, message: '已创建'})
     new db.chatModel({ 
         chatlist: [],
         chator: {
@@ -510,7 +510,7 @@ router.post('/deletechator', function(req, res) {
     const from = req.body.from
     const to = req.body.to
     const chat_id = [from, to].sort().join('_')
-    db.chatListModel.deleteOne({ owner: from }, { $pull: {
+    db.chatListModel.updateOne({ owner: from }, { $pull: {
         chat_id
     }}, function(err, doc) {
         if(err) return console.log(res)
