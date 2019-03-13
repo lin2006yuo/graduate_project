@@ -4,6 +4,10 @@ export const SET_STUDENT = 'SET_STUDENT'
 export const SET_COMPANY = 'SET_COMPANY'
 export const SET_RESUME = 'SET_RESUME'
 
+export const SET_ROLE = 'SET_ROLE'
+export const SET_LOGIN = 'set_login'
+export const SET_CHAT = 'SET_CHAT'
+
 //删除学生信息和公司信息
 export const DEL_STUDENT = 'DEL_STUDENT'
 export const DEL_COMPANY = 'DEL_COMPANY'
@@ -23,3 +27,6 @@ export const SET_CURRENT_CHATOR = 'set_current_chator'
 export const SET_MESSAGE_LIST = 'set_message_list'
 
 export const POST_MESSAGE = 'post_message'
+
+export const SET_NEW_MESSAGE = 'set_new_message'
+export const DEL_NEW_MESSAGE = 'del_new_message'

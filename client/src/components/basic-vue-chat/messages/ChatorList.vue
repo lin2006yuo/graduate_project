@@ -1,8 +1,10 @@
 <template>
     <div class="chator-list">
         <div class="chator" v-for="(item, index) in chatList" :key="`chator-${index}`">
-            <img :src="`http://${item.avatar}`" alt="" @click="handleClick(item)">
-            <i class="el-icon-error icon"></i>
+            <el-badge :is-dot="item.dot" class="item">
+                <img :src="`http://${item.avatar}`" alt="" @click="handleClick(item, index)">
+            </el-badge>
+            <i @click="handleDelete(item, index)" class="el-icon-error icon"></i>
         </div>
     </div>
 </template>
@@ -17,8 +19,11 @@ export default {
         chatList: Array
     },
     methods: {
-        handleClick(item) {
-            this.$emit('click', item)
+        handleClick(item, index) {
+            this.$emit('click', item, index)
+        },
+        handleDelete(item, index) {
+            this.$emit('delete', item)
         }
     }
 }

@@ -9,3 +9,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+.el-badge__content.is-fixed.is-dot {
+  left: -11px;
+  top: 4px;
+}

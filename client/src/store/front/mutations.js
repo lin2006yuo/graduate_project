@@ -1,4 +1,5 @@
 import * as types from './mutation-types'
+import Vue from 'vue'
 
 const mutations = {
     [types.SET_STUDENT](state, student){
@@ -42,6 +43,20 @@ const mutations = {
     },
     [types.POST_MESSAGE](state, message) {
         state.msglist.push(message)
+    },
+    [types.SET_CHAT](state, status) {
+        state.showChat = status
+    },
+    [types.SET_LOGIN](state, islogin) {
+        state.login = islogin
+    },
+    [types.SET_ROLE](state, role) {
+        state.role = role
+    },
+    [types.SET_NEW_MESSAGE](state, index) {
+        const chator = state.chatlist[index]
+        console.log(chator)
+        Vue.set(chator, 'dot', true)
     }
 }
 

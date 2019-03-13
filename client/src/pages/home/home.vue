@@ -4,15 +4,19 @@
         <keep-alive >
             <router-view></router-view>
         </keep-alive>
-        <basic-vue-chat 
+        <basic-vue-chat
+            v-if="login"
             class="chat" 
             ref="vuechat"
             :initial-feed="msgList"
             @newOwnMessage="send"
             @click="handleClick"
+            @toggleShow="toggleShow"
+            @delete="handleDelete"
             :chat-list="chatList"
             :send-flag="login"
             :title="title"
+            :show="show"
         />
         <!-- <footer></footer> -->
     </div>
@@ -52,7 +56,9 @@ export default {
             "chatList",
             "currentChator",
             "message",
-            "msgList"
+            "msgList",
+            "show",
+            "role"
         ]),
         title() {
             return this.currentChator.name ? this.currentChator.name : this.currentChator.companyName
@@ -62,14 +68,17 @@ export default {
             setTimeout(() => {
                 if(this.studentInfo._id || this.companyInfo._id) {
                     this.login = true
+                    this.setLogin(this.login)
                     if(this.login) {
                         let from,role
                         if(this.studentInfo._id) {
                             from = this.studentInfo._id,
                             role = 'student'
+                            this.setRole(role)
                         } else {
                             from = this.companyInfo._id
                             role = 'company'
+                            this.setRole(role)
                         }
                         this.initChatList({from, role})
                     }
@@ -80,10 +89,14 @@ export default {
         ...mapActions([
            'sendMsg',
            'getMsgList',
-           'initChatList'
+           'initChatList',
+           "deleteChator"
         ]),
         ...mapMutations({
-            'setCurrentChator': types.SET_CURRENT_CHATOR
+            'setCurrentChator': types.SET_CURRENT_CHATOR,
+            'setLogin': types.SET_LOGIN,
+            'setRole': types.SET_ROLE,
+            'showChat': types.SET_CHAT
         }),
         send(message) {
             if(!this.login) return this.$message('请登录...')
@@ -91,8 +104,18 @@ export default {
             const to = this.currentChator._id
             this.sendMsg({from, to, content: message.contents, message})
         },
-        handleClick(item) {
+        handleClick(item, index) {
+            const chator = this.chatList[index]
+            this.$set(chator, 'dot', false)
             this.getMsgList(item)
+        },
+        toggleShow() {
+            this.showChat(!this.show)
+        },
+        handleDelete(item) {
+            const from = this.role === 'student' ? this.studentInfo._id : this.companyInfo._id
+            const to = item._id
+            this.deleteChator({from, to})
         }
     },
     components: {

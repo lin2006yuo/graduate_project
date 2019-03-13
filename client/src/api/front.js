@@ -345,3 +345,16 @@ export function createchat({from, to}) {
               return Promise.reject(err)
             })
 }
+
+
+export function deleteChtor({from, to}) {
+    const url = 'http://localhost:3000/front/deletechator'
+    return axios
+              .post(url, { from, to })
+              .then(res => {
+                return Promise.resolve(res.data)
+              })
+              .catch(err => {
+                return Promise.reject(err)
+              })
+}

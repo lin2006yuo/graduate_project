@@ -1,6 +1,6 @@
 import * as types from './mutation-types'
 import socket from '@/socket/'
-import { getchatlist, getmsglist } from '@/api/front'
+import { getchatlist, getmsglist, deleteChtor } from '@/api/front'
 import { companyInfo } from './getters';
 import moment from 'moment'
 
@@ -12,9 +12,19 @@ import moment from 'moment'
 
  function initSocket(commit,state, userid) {
     socket.on('receiveMsg', function (msg) {
-        console.log(msg)
         // if(data.to !== userid) return 
-        const userid = state.student._id || state.company._id
+        // const userid = state.student._id || state.company._id
+        if(msg.to !== userid && msg.from !== userid) return
+        if(msg.from !== state.currentChator._id && msg.from !== userid) {
+            const index = state.chatlist.findIndex(c => (c._id === msg.from))
+            //如果聊天列表有此人
+            if(index) {
+                commit(types.SET_NEW_MESSAGE, index)
+            } else {
+                //木有
+                initChatList({commit, state},{from: userid, role: state.role})
+            }
+        }
         msg.id = msg.from === userid ? 0 : 1
         msg.date = moment(msg.create_time).format("HH:mm:ss")
         msg.contents = msg.content
@@ -42,7 +52,6 @@ export const getMsgList = ({commit, state}, info) => {
     return getmsglist(from, to).then(res => {
         const { chatlist } = res.data
         chatlist.forEach(msg => {
-            console.log(msg.create_time)
             const userid = state.student._id || state.company._id
             msg.id = msg.from === userid ? 0 : 1
             msg.date = moment(msg.create_time).format("HH:mm:ss")
@@ -51,5 +60,15 @@ export const getMsgList = ({commit, state}, info) => {
             // msg.imageUrl = msg.from === state.student._id ? 'http://' + state.student.avatar : 'http://' + state.currentChator.avatar
         })
         commit(types.SET_MESSAGE_LIST, chatlist)
+    })
+}
+
+export const deleteChator = ({state}, {from, to}) => {
+    deleteChtor({from, to}).then(()=> {
+        const index = state.chatlist.findIndex(i => {
+            return i._id === to
+        })
+        state.chatlist.splice(index, 1)
+        state.msglist = []
     })
 }

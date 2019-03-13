@@ -4,6 +4,7 @@
       <chator-list 
         :chat-list="chatList"
         @click="handleClick"
+        @delete="handleDelete"
     ></chator-list>
     </section>
     <section class="window">
@@ -74,14 +75,14 @@ export default {
       required: false
     },
     sendFlag: false,
-    chatList: Array
+    chatList: Array,
+    show: false
   },
   data: function() {
     return {
       feed: [],
       authorId: 0,
       toggleEmojiPicker: false,
-      show: true
     };
   },
   watch: {
@@ -135,11 +136,14 @@ export default {
     onOpenEmojiPicker(toggle) {
       this.setEmojiPickerToggle(toggle);
     },
-    toggleShow() {
-      this.show = !this.show;
+    handleClick(item, index) {
+        this.$emit('click', item, index)
     },
-    handleClick(item) {
-        this.$emit('click', item)
+    handleDelete(item) {
+        this.$emit('delete', item)
+    },
+    toggleShow() {
+        this.$emit('toggleShow')
     }
   }
 };

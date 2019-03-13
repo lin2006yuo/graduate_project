@@ -6,7 +6,10 @@ const state = {
     chatlist: [],
     msglist: [],
     currentChator: {},
-    message: {}
+    message: {},
+    showChat: false,
+    login: false,
+    role: ''
 }
 
 export default state

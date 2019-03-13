@@ -49,7 +49,8 @@
 <script type="text/ecmascript-6">
 import Antitle from "components/antitle/antitle";
 import { submitJl, getResumeById, createchat, getchatlist } from "api/front";
-import { mapGetters, mapState, mapActions } from "vuex";
+import { mapGetters, mapState, mapActions, mapMutations } from "vuex";
+import * as types from '@/store/front/mutation-types'
 export default {
   data() {
     return {
@@ -69,7 +70,7 @@ export default {
     ...mapGetters(["studentInfo", "companyInfo"]),
     ...mapState({
       jl: state => state.front.jl
-    })
+    }),
   },
   updated() {
     //查询是否已经投递简历
@@ -143,6 +144,7 @@ export default {
       } else if (!this.studentInfo._id && this.companyInfo._id) {
         this.$message.warning({message: '企业无法联系企业~'})
       } else {
+        this.showChat(true)
         const from = this.studentInfo._id;
         const to = this.recruit.companyId._id;
         const role = "student";
@@ -154,7 +156,10 @@ export default {
     hasSubmit(arr, id) {
       return arr.some(v => v.recruitId._id === id && v.status === 1);
     },
-    ...mapActions(["initChatList", "getMsgList"])
+    ...mapActions(["initChatList", "getMsgList"]),
+    ...mapMutations({
+      'showChat': types.SET_CHAT
+    })
   }
 };
 </script>
