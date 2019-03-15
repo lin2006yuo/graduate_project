@@ -6,7 +6,8 @@
                 <el-aside width="200px">
                     <ul class="list">
                         <li class="item"><i class="el-icon-tickets"></i><router-link to="/admin/index/a-annuce" class="link">校园公告</router-link></li>
-                        <li class="item"><i class="el-icon-tickets"></i><router-link to="/admin/index/a-company" class="link">公司账号</router-link></li>
+                        <li class="item"><i class="el-icon-tickets"></i><router-link to="/admin/index/a-company" class="link">公司信息</router-link></li>
+                        <li class="item"><i class="el-icon-tickets"></i><router-link to="/admin/index/a-student" class="link">学生信息</router-link></li>
                         <!-- <li class="item"><i class="el-icon-tickets"></i><router-link to="/admin/index/a-setting" class="link">设置</router-link></li> -->
                         <li class="item"><i class="el-icon-tickets"></i><a href="javascript:;" @click="loginout" class="link">退出登陆</a></li>
                     </ul>

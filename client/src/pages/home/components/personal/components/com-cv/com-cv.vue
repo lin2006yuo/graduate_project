@@ -116,7 +116,10 @@
             </div>
           </div>
         </div>
-        <div class="d-bottom">
+        <div class="d-bottom" v-if="haspass === 2">
+          <el-button type="primary" :disabled="true">已通过</el-button>
+        </div>
+        <div class="d-bottom" v-else>
           <el-button type="primary" @click="pass(2)">通过</el-button>
           <el-button type="info" @click="pass(0)">放弃</el-button>
         </div>
@@ -154,7 +157,9 @@ export default {
       },
       currentJlId: '',
       page: 1,
-      count: 0
+      count: 0,
+      haspass: 0,
+      currentIndex: ""
     };
   },
   mounted() {
@@ -193,6 +198,8 @@ export default {
     showDetailHandle(index) {
       this.userData = this.tableData[index].jlInfo
       this.currentJlId = this.tableData[index].id
+      this.currentIndex = index
+      this.haspass = this.tableData[index].status
       this.showDetail = true;
     },
     handleCurrentChange(index) {
@@ -220,7 +227,11 @@ export default {
       this.$confirm(str, '提示', { type: 'warning' }).then(() => {
           const id = this.currentJlId
           passJl({id, pass}).then(res => {
-            console.log(pass)
+            if(res.type === 0) {
+              this.$message({ type: 'success', message: '简历通过' })
+              this.haspass = 2
+              this.tableData[this.currentIndex].status = 2
+            }
           })
       }).catch(() => {})
     }

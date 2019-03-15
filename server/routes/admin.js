@@ -343,7 +343,19 @@ router.post('/deletePic', function(req, res) {
     })
 })
 
+router.get('/getCompanyCount', function(req, res) {
+    db.companyModel.count(function(err, count) {
+        res.json({code: 0, data:count})
+    })
+})
 
+router.get('/getJlCount', async function(req, res) {
+    const total = await db.com2jlModel.count()
+    const fail = await db.com2jlModel.count({status: 0})
+    const succuss = await db.com2jlModel.count({status: 2})
+    const undefind = await db.com2jlModel.count({status: 1})
+    res.json({code: 0, data: {total, succuss, fail,undefind}})
+})
 
 
 //DEBUG 图片前端操作  然并卵

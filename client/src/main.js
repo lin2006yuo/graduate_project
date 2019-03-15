@@ -9,13 +9,14 @@ import 'element-ui/lib/theme-chalk/index.css';
 import store from './store'
 //iconfont
 import 'assets/icon/iconfont.css'
-
+//echart
+import VePie from 'v-charts/lib/pie.common'
 import ElementUI from 'element-ui';
 import './socket'
 
 
 Vue.use(ElementUI)
-
+Vue.component(VePie.name, VePie)
 Vue.config.productionTip = false
 
 

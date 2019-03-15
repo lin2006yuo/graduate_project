@@ -3,15 +3,26 @@
         <el-row :gutter="20">
             <el-col :span="6">
                 <div class="logistics-item">
-                    <div class="name">入驻公司</div>
+                    <div class="name">注册学生数</div>
                     <div class="number blue">2</div>
                 </div>
             </el-col>
             <!-- <el-col :span="6" class="logistics-item"></el-col> -->
         </el-row>
-        <div class="top">
-            <i class="el-icon-plus" @click="add"></i>
-        </div>
+        <el-row class="mt-sm mb-sm logistics">
+            <el-col :span="10">
+                <span class="title">简历分析</span>
+                <ve-pie :data="chartData"></ve-pie>
+            </el-col>
+            <el-col :span="10">
+                <div class="container">
+                    <div class="item yellow">总数量：</div>
+                    <div class="item green">通过数：</div>
+                    <div class="item blue">待审核数：</div>
+                    <div class="item red">未通过数：</div>
+                </div>
+            </el-col>
+        </el-row>
         <el-table
         v-if="companyList"
         :data="companyList"
@@ -64,6 +75,14 @@ export default {
             dialogVisible: false,
             curId: '',
             curIndex: 0,
+            chartData: {
+                columns: ['状态', '访问用户'],
+                rows: [
+                    { '状态': '通过', '访问用户': 1393 },
+                    { '状态': '待审核', '访问用户': 2923 },
+                    { '状态': '未通过', '访问用户': 3530 },
+                ]
+            }
         }
     },
     mounted(){
@@ -152,6 +171,33 @@ export default {
 .a-company
     padding 20px
     background-color #fff
+    .container
+        display flex
+        flex-direction column
+        margin-top 72px
+        .item
+            padding 15px
+            margin 5px
+            background-color #000
+            font-size 20px
+            font-weight bold
+            color #fff
+            border-radius 12px
+            &.yellow
+                background-color #f7da47
+            &.red
+                background-color #ee706d
+            &.green
+                background-color #58ca9a
+            &.blue
+                background-color #447eff
+    .logistics 
+        border-radius 15px
+        background-color #f1f1f1
+        padding 15px
+        .title
+            font-size 15px
+            font-weight bold
     .logistics-item
         height 120px
         border-radius 15px

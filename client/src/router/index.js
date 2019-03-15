@@ -32,6 +32,7 @@ import AIndex from '@/pages/admin/components/a-index'
   //后台index子页面
   import AAnnuce from '@/pages/admin/components/a-annuce'
   import ACompany from '@/pages/admin/components/a-company'
+  import AStudent from '@/pages/admin/components/a-student'
   import ASetting from '@/pages/admin/components/a-setting'
   import ACheck from '@/pages/admin/components/a-announce-check'
   import AEditor from '@/pages/admin/components/a-announce-editor'
@@ -90,6 +91,7 @@ export default new Router({
           children: [
             { path: '/admin/index/a-annuce', name:'Annuce', component:AAnnuce },
             { path: '/admin/index/a-company', name: 'ACompany', component: ACompany },
+            { path: '/admin/index/a-student', name: 'ACompany', component: AStudent },
             { path: '/admin/index/a-setting', name: 'ASetting', component: ASetting },
             { path: '/admin/index/a-annuce-check', name: 'ACheck', component: ACheck },
             { path: '/admin/index/a-annuce-editor', name: 'AEditor', component: AEditor },
