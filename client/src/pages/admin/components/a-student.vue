@@ -4,7 +4,7 @@
             <el-col :span="6">
                 <div class="logistics-item">
                     <div class="name">注册学生数</div>
-                    <div class="number blue">2</div>
+                    <div class="number blue">{{sum}}</div>
                 </div>
             </el-col>
             <!-- <el-col :span="6" class="logistics-item"></el-col> -->
@@ -16,27 +16,40 @@
             </el-col>
             <el-col :span="10">
                 <div class="container">
-                    <div class="item yellow">总数量：</div>
-                    <div class="item green">通过数：</div>
-                    <div class="item blue">待审核数：</div>
-                    <div class="item red">未通过数：</div>
+                    <div class="item yellow">总数量：{{jlInfo.total}}</div>
+                    <div class="item green">通过数：{{jlInfo.succuss}}</div>
+                    <div class="item blue">待审核数：{{jlInfo.undefind}}</div>
+                    <div class="item red">未通过数：{{jlInfo.fail}}</div>
                 </div>
             </el-col>
         </el-row>
         <el-table
-        v-if="companyList"
-        :data="companyList"
+        :data="studentList"
         style="width: 100%">
             <el-table-column
-                prop="companyName"
-                label="公司名称">
+                label="学生名称">
+                <template slot-scope="scope">
+                    <div style="cursor: pointer" @click="rowClick(scope.row)">{{scope.row.name}}</div>
+                </template>
             </el-table-column>
             <el-table-column
-                width="100px"
+                width="300px"
                 prop="bian"
                 label="编辑">
+                <template slot="header" slot-scope="scope">
+                    <el-autocomplete
+                    popper-class="my-autocomplete"
+                    v-model="search"
+                    :fetch-suggestions="querySearchAsync"
+                    placeholder="请输入内容"
+                    >
+                        <template slot-scope="{ item }">
+                            <div class="name">{{ item.name }}</div>
+                        </template>
+                    </el-autocomplete>
+                </template>
                 <template slot-scope="scope">
-                    <el-button @click="editClick(scope.row)" type="text" size="small">编辑</el-button>
+                    <el-button @click="update(scope.row)" type="text" size="small">修改密码</el-button>
                     <el-button type="text" size="small" @click="comfirm(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
@@ -51,6 +64,22 @@
             @size-change="sizechange">
             </el-pagination>
         </div>
+        <el-dialog title="学生信息" :visible.sync="showStudentInfo" width="400px">
+            <div><label for="">姓名：</label><span>{{studentInfo.name}}</span></div>
+            <div><label for="">性别：</label><span>{{studentInfo.sex === 1 ? '男' : '女'}}</span></div>
+            <div><label for="">学院：</label><span>{{studentInfo.academy}}</span></div>
+            <div><label for="">专业：</label><span>{{studentInfo.major}}</span></div>
+            <div><label for="">民族：</label><span>{{studentInfo.ethnic}}</span></div>
+            <div><label for="">年级：</label><span>{{studentInfo.grade}}</span></div>
+            <div><label for="">手机号码：</label><span>{{studentInfo.phone}}</span></div>
+            <div><label for="">出生日期：</label><span>{{new Date(studentInfo.birthday).toLocaleDateString()}}</span></div>
+            <div><label for="">email：</label><span>{{studentInfo.eMail}}</span></div>
+            <div><label for="">城市：</label><span>{{studentInfo.city[0]}} - {{studentInfo.city[1]}}</span></div>
+        </el-dialog>
+        <el-dialog title="修改密码" :visible.sync="showModel" width="300px">
+            <el-input  size="mini" v-model="newPwd"></el-input>
+            <el-button size="mini" type="primary" @click="updatePwd">确定</el-button>
+        </el-dialog>
         <el-dialog
         title="提示"
         :visible.sync="dialogVisible"
@@ -65,7 +94,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getAllCompany, getAllCompanyCount, deleteCompany } from 'api/admin/admin'
+import { getAllStudent, getStduentCount, deleteStudent, getJlCount, updateStudentPassword, getStudentByName } from 'api/admin/admin'
 import {mapMutations, mapGetters, mapActions} from 'vuex'
 
 const COUNT = 10 //总记录数
@@ -75,14 +104,14 @@ export default {
             dialogVisible: false,
             curId: '',
             curIndex: 0,
-            chartData: {
-                columns: ['状态', '访问用户'],
-                rows: [
-                    { '状态': '通过', '访问用户': 1393 },
-                    { '状态': '待审核', '访问用户': 2923 },
-                    { '状态': '未通过', '访问用户': 3530 },
-                ]
-            }
+            sum: 0,
+            jlInfo: {total: 0, succuss: 0, fail: 0, undefind: 0},
+            studentList: [],
+            showModel: false,
+            newPwd: '',
+            studentInfo: {city: []},
+            showStudentInfo: false,
+            search: ''
         }
     },
     mounted(){
@@ -93,7 +122,17 @@ export default {
         ...mapGetters([
             'companyList',
             'cTotalCount'
-        ])
+        ]),
+        chartData() {
+            return {
+                columns: ['状态', '访问用户'],
+                rows: [
+                    { '状态': '通过', '访问用户': this.jlInfo.succuss },
+                    { '状态': '待审核', '访问用户': this.jlInfo.undefind },
+                    { '状态': '未通过', '访问用户': this.jlInfo.fail },
+                ]
+            }
+        }
     },
     watch: {
         cTotalCount(val){
@@ -104,10 +143,20 @@ export default {
     },
     components: {},
     methods: {
-        editClick(row){
-            this.$router.push({name: 'ACEditor', query: {status: 0}, params: {
-                form: row
-            }})
+        querySearchAsync(queryString, cb) {
+            getStudentByName(queryString).then(res => {
+                this.studentList = res.data
+                this.count = 0
+                cb(res.data)
+            })
+        },
+        rowClick(row) {
+            this.studentInfo = row
+            this.showStudentInfo = true
+        },
+        update({_id}) {
+            this.showModel = true
+            this.curId = _id
         },
         add(){
              this.$router.push({path: '/admin/index/a-company-editor', query: {
@@ -124,7 +173,7 @@ export default {
         },
         delClick(){
             //发送删除请求
-            deleteCompany(this.curId).then(res => {
+            deleteStudent(this.curId).then(res => {
                 console.log(res);
             }).catch(err => {
                 console.log(err);
@@ -140,20 +189,32 @@ export default {
             console.log(1);
             
         },
+        updatePwd() {
+            updateStudentPassword(this.curId, this.newPwd).then(res => {
+                if(res.code === 0) {
+                    this.$message({ type: 'success', message: '修改成功' })
+                    this.showModel = false
+                }
+            })
+        },
         _initCompany(cur = 1,limit = COUNT){
-            getAllCompany(limit,cur).then(res => {
+            getAllStudent(limit,cur).then(res => {
                 // this.tableData = res.data
-                this.setCompanyList(res.data)
+                this.studentList = res.data
             }).catch(err => {
                 console.log(err); 
             })
         },
         _initCount(){
-            getAllCompanyCount().then(res => {
+            getStduentCount().then(res => {
                 // this.totalCount = res.data
-                this.setCount(res.data)
+                this.sum = res.data
             }).catch(err => {
                 console.log(err)
+            })
+
+            getJlCount().then(res => {
+                this.jlInfo = res.data
             })
         },
         ...mapMutations({
@@ -171,6 +232,10 @@ export default {
 .a-company
     padding 20px
     background-color #fff
+    >>> .el-input {
+        display inline-block
+        width 200px
+    }
     .container
         display flex
         flex-direction column

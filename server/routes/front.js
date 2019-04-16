@@ -462,6 +462,8 @@ router.get('/msglist', function(req, res) {
     //     })
 })
 
+
+//创建一个聊天
 router.post('/createchat', async function(req, res) {
     const from = req.body.from
     const to = req.body.to

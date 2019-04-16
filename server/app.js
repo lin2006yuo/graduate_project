@@ -8,6 +8,7 @@ var front = require('./routes/front')
 var public = require('./routes/public')
 
 var bodyParser = require('body-parser')
+var cookieParser = require('cookie-parser')
 //cookies session 
 var session = require('express-session');
 //跨域
@@ -22,6 +23,7 @@ app.use(cors({
     credentials: true, 
     origin: ['http://localhost:8080']
 }))
+app.use(cookieParser())
 
 //cookie session
 app.use(session({

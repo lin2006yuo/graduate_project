@@ -1,7 +1,7 @@
 <template>
   <div class="recruit-page">
     <div class="top-bg"></div>
-    <antitle></antitle>
+    <antitle title="职位招聘" :position="position"></antitle>
     <div class="article" v-if="recruit">
       <div class="top">
         <p class="title">{{recruit.title}}</p>
@@ -54,16 +54,15 @@ import * as types from '@/store/front/mutation-types'
 export default {
   data() {
     return {
-      text:
-        "西安创知专利事务所成立于2005年，是经国家知识产权局核准注册并授予代理资格的专利代理机构，同时又经西安市工商行政部门核准注册并备案的代理机构。西安创知专利事务所设有专利代理部、业务拓展部、专利咨询检索部、专利培训中心、流程管理部、专利侵权诉讼部、办公室、财务室等多个部门，其代理的专利技术领域覆盖机械、电力电子、通讯、计算机软硬件结合、化工、新材料、生物医药等技术领域。",
-      vhtml: `<p>这是段落。</p>
-<p>这是段落。</p>
-<p>这是段落。</p>
-
-<p>段落元素由 p 标签定义。</p> `,
+      text: '',
+      vhtml: '',
       recruit: "",
       fullscreenLoading: false,
-      hasSub: false
+      hasSub: false,
+      position: [
+        {text: '首页', route: '/index'},
+        {text: '招聘信息', route: '/index/recruit'},
+      ]
     };
   },
   computed: {
@@ -174,7 +173,7 @@ export default {
   height: 600px;
   margin: 0 auto 0;
   border-radius: 5px;
-  padding: 10px 40px;
+  padding: 100px 40px 0;
 
   .top-bg {
     height: 80px;
@@ -189,7 +188,6 @@ export default {
   .article {
     width: 100%;
     margin-top: 20px;
-    background-color: #fdfdfd;
     padding: 10px 10px;
     font-size: 14px;
     position: relative;

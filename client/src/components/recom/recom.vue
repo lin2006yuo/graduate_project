@@ -8,15 +8,15 @@
                         <h2 class="left-title">最新职位</h2>
                         <p class="intro">最新发布的职位都在这里,获取最新的校招资讯，加入心仪的企业吧！</p>
                         <div class="more">
-                            <span>发现更多</span>
+                            <router-link tag="span" to="/index/recruit">发现更多</router-link>
                         </div>
                     </div>
                     <div class="inner-content">
-                        <div class="position" v-for="item in resume" :key="item._id">
+                        <div @click="turn2page(item)" class="position" v-for="item in resume" :key="item._id">
                             <div class="logo">
                                 <img :src="`http://${item.companyId.avatar}`" alt="">
                             </div>
-                            <h1 class="title"><router-link to="/index/recruitpage">{{item.title}}</router-link></h1>
+                            <h1 class="title">{{item.title}}</h1>
                             <p class="sub">{{item.companyId.companyName}}</p>
                             <div class="info">
                                 <span>{{item.salary}}/天</span>
@@ -27,7 +27,7 @@
                 </div>
                 <div  class="re-position">
                     <div v-if="hasLogoin" class="inner-content">     
-                        <div  class="position" v-for="item in recommendResum" :key="item._id">
+                        <div  @click="turn2page(item)" class="position" v-for="item in recommendResum" :key="item._id">
                             <div class="logo">
                                 <img :src="`http://${item.companyId.avatar}`" alt="">
                             </div>
@@ -44,7 +44,7 @@
                         <h2 class="left-title">推荐职位</h2>
                         <p class="intro">根据你的专业匹配相关的职位，让你更快的找到心仪的企业！</p>
                         <div class="more">
-                            <span>发现更多</span>
+                            <router-link tag="span" to="/index/recruit">发现更多</router-link>
                         </div>
                     </div>
                 </div>
@@ -80,6 +80,11 @@ export default {
             }else{
                wrapperStyle.transform = `translate3d(0,0,0)`
             }
+        },
+        turn2page(item){
+            this.$router.push({name: 'RecruitPage', params: {
+                recruit: item
+            }})
         }    
     },
     mounted() {

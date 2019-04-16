@@ -4,7 +4,7 @@
             <el-col :span="6">
                 <div class="logistics-item">
                     <div class="name">入驻公司</div>
-                    <div class="number blue">2</div>
+                    <div class="number blue">{{sum}}</div>
                 </div>
             </el-col>
             <!-- <el-col :span="6" class="logistics-item"></el-col> -->
@@ -21,9 +21,21 @@
                 label="公司名称">
             </el-table-column>
             <el-table-column
-                width="100px"
+                width="300px"
                 prop="bian"
                 label="编辑">
+                <template slot="header" slot-scope="scope">
+                    <el-autocomplete
+                    v-model="search"
+                    popper-class="my-autocomplete"
+                    :fetch-suggestions="querySearchAsync"
+                    placeholder="请输入内容"
+                    >
+                        <template slot-scope="{ item }">
+                            <div class="name">{{ item.companyName }}</div>
+                        </template>
+                    </el-autocomplete>
+                </template>
                 <template slot-scope="scope">
                     <el-button @click="editClick(scope.row)" type="text" size="small">编辑</el-button>
                     <el-button type="text" size="small" @click="comfirm(scope.row)">删除</el-button>
@@ -54,7 +66,7 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getAllCompany, getAllCompanyCount, deleteCompany } from 'api/admin/admin'
+import { getAllCompany, getAllCompanyCount, deleteCompany, getCompanyByName } from 'api/admin/admin'
 import {mapMutations, mapGetters, mapActions} from 'vuex'
 
 const COUNT = 10 //总记录数
@@ -64,6 +76,8 @@ export default {
             dialogVisible: false,
             curId: '',
             curIndex: 0,
+            sum: 0,
+            search: ''
         }
     },
     mounted(){
@@ -85,6 +99,13 @@ export default {
     },
     components: {},
     methods: {
+        querySearchAsync(queryString, cb) {
+            getCompanyByName(queryString).then(res => {
+                this.setCompanyList(res.data)
+                this.count = 0
+                cb(res.data)
+            })
+        },
         editClick(row){
             this.$router.push({name: 'ACEditor', query: {status: 0}, params: {
                 form: row
@@ -106,7 +127,7 @@ export default {
         delClick(){
             //发送删除请求
             deleteCompany(this.curId).then(res => {
-                console.log(res);
+                this.$message({ type: 'success', message: '删除成功' })
             }).catch(err => {
                 console.log(err);
             })
@@ -132,6 +153,7 @@ export default {
         _initCount(){
             getAllCompanyCount().then(res => {
                 // this.totalCount = res.data
+                this.sum = res.data
                 this.setCount(res.data)
             }).catch(err => {
                 console.log(err)

@@ -86,6 +86,7 @@ router.post('/login', function (req, res) {
                     } else {
                         req.session._id = doc._id
                         req.session.company = false
+                        res.cookie('login_id', doc._id)
                         res.json({ code: 0, msg: '登陆成功', data: doc })
                         return
                     }
@@ -95,6 +96,18 @@ router.post('/login', function (req, res) {
     }
 })
 
+
+
+//获取轮播图图片
+router.get('/getSwiperPic', function(req, res) {
+    db.swiperPicModel.find({}, function(err, doc) {
+        if(err) {
+            res.json({ type: 1, msg: '服务器错误' })
+        } else {
+            res.json({ type: 0, msg: '获取成功', data: doc })
+        }
+    })
+})
 
 //获取用户信息
 router.get('/getUserInfo', function (req, res) {

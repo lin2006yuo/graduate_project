@@ -100,6 +100,23 @@ export function getAllCompany(limit, cur) {
         return Promise.reject(err)
     })
 }
+/**
+ * 获取所有学生信息
+ * 
+ */
+export function getAllStudent(limit, cur) {
+    const url = "http://localhost:3000/admin/getAllStudent"
+    return axios.get(url, {
+        params: {
+            limit: limit,
+            cur
+        }
+    }).then(res => {
+        return Promise.resolve(res.data)
+    }).catch(err => {
+        return Promise.reject(err)
+    })
+}
 
 /**
  * 获取所有公司总记录数
@@ -138,7 +155,56 @@ export function deleteCompany(id) {
         return Promise.reject(err)
     })
 }
+/**
+ * 删除学生
+ */
+export function deleteStudent(id) {
+    const url = "http://localhost:3000/admin/deleteStudent"
+    return axios.post(url, {
+        id
+    }).then(res => {
+        return Promise.resolve(res.data)
+    }).catch(err => {
+        return Promise.reject(err)
+    })
+}
+//修改学生密码
+export function updateStudentPassword(id, password) {
+    const url = "http://localhost:3000/admin/updateStudentPassword"
+    return axios.post(url, {
+        id, password
+    }).then(res => {
+        return Promise.resolve(res.data)
+    }).catch(err => {
+        return Promise.reject(err)
+    })
+}
+//通过名称查询学生
+export function getStudentByName(name) {
+    const url = "http://localhost:3000/admin/getStudentByName"
+    return axios.get(url, {
+        params: {
+            name
+        }
+    }).then(res => {
+        return Promise.resolve(res.data)
+    }).catch(err => {
+        return Promise.reject(err)
+    })
+}
 
+export function getCompanyByName(name = "") {
+    const url = "http://localhost:3000/admin/getCompanyByName"
+    return axios.get(url, {
+        params: {
+            name
+        }
+    }).then(res => {
+        return Promise.resolve(res.data)
+    }).catch(err => {
+        return Promise.reject(err)
+    })
+}
 /**
  * 修改公司
  */
@@ -154,7 +220,7 @@ export function updateCompany(params) {
 
 /******************** 轮播图 ******************** */
 export function getSwiperPic() {
-    const url = 'http://localhost:3000/admin/getSwiperPic'
+    const url = 'http://localhost:3000/public/getSwiperPic'
     return axios.get(url).then(res => {
         return Promise.resolve(res.data)
     }).catch(err => {
@@ -170,3 +236,25 @@ export function deletePic(params) {
         return Promise.reject(err)
     })
 }
+
+// 获取学生数量
+export function getStduentCount() {
+    const url = 'http://localhost:3000/admin/getStudentCount'
+    return axios.get(url).then(res => {
+        return Promise.resolve(res.data)
+    }).catch(err => {
+        return Promise.reject(err)
+    })
+}
+
+// 获取简历分析
+
+export function getJlCount() {
+    const url = 'http://localhost:3000/admin/getJlCount'
+    return axios.get(url).then(res => {
+        return Promise.resolve(res.data)
+    }).catch(err => {
+        return Promise.reject(err)
+    })
+}
+

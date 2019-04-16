@@ -119,6 +119,9 @@
         <div class="d-bottom" v-if="haspass === 2">
           <el-button type="primary" :disabled="true">已通过</el-button>
         </div>
+        <div class="d-bottom" v-else-if="haspass === 0">
+          <el-button type="primary" :disabled="true">已放弃</el-button>
+        </div>
         <div class="d-bottom" v-else>
           <el-button type="primary" @click="pass(2)">通过</el-button>
           <el-button type="info" @click="pass(0)">放弃</el-button>
@@ -228,9 +231,15 @@ export default {
           const id = this.currentJlId
           passJl({id, pass}).then(res => {
             if(res.type === 0) {
-              this.$message({ type: 'success', message: '简历通过' })
-              this.haspass = 2
-              this.tableData[this.currentIndex].status = 2
+              if(pass === 1) {
+                this.$message({ type: 'success', message: '简历通过' })
+                this.haspass = 2
+                this.tableData[this.currentIndex].status = 2
+              }else {
+                this.$message({ message: '放弃简历' })
+                this.haspass = 0
+                this.tableData[this.currentIndex].status = 0
+              }
             }
           })
       }).catch(() => {})

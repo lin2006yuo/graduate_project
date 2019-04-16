@@ -1,6 +1,7 @@
 const db =  require('../db')
 const mongoose = require('mongoose')
 
+//初始化数据，接受客户端发送的信息
 module.exports = function(server) {
     const io = require('socket.io')(server)
     io.on('connection', function(socket) {

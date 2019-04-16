@@ -62,6 +62,7 @@ export default {
         },
         edit(){
             updateCompany(this.form).then(res => {
+                this.$message({ type: 'success', message: '修改成功' })
                 if(res.code === 0){
                     this.$router.back()
                 }

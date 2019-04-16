@@ -1,7 +1,7 @@
 <template>
     <div class="announcement">
         <div class="top-bg"></div>
-        <antitle></antitle>
+        <antitle :position="position"></antitle>
         <ul class="arti-list">
             <li class="item" v-for="(item, index) in announceList" :key="index" >
                 <span class="ti" @click="selectItem(item)">{{item.title}}</span>
@@ -33,6 +33,10 @@ export default {
         return {
             announceList: [],
             totalCount: 0,
+            position: [
+                {text: '首页', route: '/index'},
+                {text: '校园公告', route: '/index/announcement'},
+            ]
         };
     },
     components: {

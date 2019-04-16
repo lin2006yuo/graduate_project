@@ -13,7 +13,9 @@
                 </transition>
             </el-tooltip>
             <h1 class="title">{{title}}</h1>
-            <span class="position">{{pos}}</span>
+            <span class="position" v-if="position.length" >
+                <router-link v-for="(item,index) in position" :to="item.route" :key="index">{{item.text}} - </router-link>
+            </span>
         </div>
         <div class="line"></div>
     </div>

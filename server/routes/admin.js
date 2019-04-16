@@ -3,6 +3,7 @@ const router = express.Router()
 const db = require('../db')
 const mongoose = require('mongoose')
 const multer  = require('multer')
+const auth = require('../middleware/auth')
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -15,6 +16,7 @@ const storage = multer.diskStorage({
   })
 const upload = multer({ storage: storage })
 
+router.use(auth)
 
 // 登陆请求
 router.post('/login', function (req, res) {
@@ -33,7 +35,7 @@ router.post('/login', function (req, res) {
                     res.json({code: 1,msg: '密码不正确!'})
                     return 
                 }else{
-                    res.cookie('id', doc._id, { maxAge: 900000 })
+                    res.cookie('connect.sid', doc._id, { maxAge: 900000 })
                     res.json({code: 0, msg: '登陆成功',data: doc})
                     return
                 }
@@ -187,6 +189,50 @@ router.post('/deleteCompany', function (req, res) {
         }
     })
 })
+// 删除学生
+router.post('/deleteStudent', function (req, res) {
+    const studentId = mongoose.Types.ObjectId(req.body.id)
+    db.studentModel.deleteOne({_id: studentId}, function (err, doc) {
+        if (err) {
+            res.json({ code: 1, msg: '删除失败' })
+        } else {
+            res.json({ code: 0, msg: '删除成功', data: doc })
+        }
+    })
+})
+//查询学生 通过名称
+router.get('/getStudentByName', function (req, res) {
+    const name = req.query.name
+    db.studentModel.find({name: { '$regex': name, $options: '$g' }}, function (err, doc) {
+        if (err) {
+            res.json({ code: 1, msg: '查询失败' })
+        } else {
+            res.json({ code: 0, msg: '查询成功', data: doc })
+        }
+    })
+})
+router.get('/getCompanyByName', function (req, res) {
+    const name = req.query.name
+    db.companyModel.find({companyName: { '$regex': name, $options: '$g' }}, function (err, doc) {
+        if (err) {
+            res.json({ code: 1, msg: '查询失败' })
+        } else {
+            res.json({ code: 0, msg: '查询成功', data: doc })
+        }
+    })
+})
+// 修改学生密码
+router.post('/updateStudentPassword', function(req, res) {
+    const studentId = mongoose.Types.ObjectId(req.body.id)
+    const password = req.body.password
+    db.studentModel.updateOne({_id: studentId}, { pwd: password },function (err, doc) {
+        if (err) {
+            res.json({ code: 1, msg: '修改失败' })
+        } else {
+            res.json({ code: 0, msg: '修改成功', data: doc })
+        }
+    })
+})
 
 /**
  * 更改公司名称，账号，密码
@@ -320,16 +366,6 @@ router.post('/uploadPic', upload.single('file'),function(req, res) {
     })
 })
 
-//获取
-router.get('/getSwiperPic', function(req, res) {
-    db.swiperPicModel.find({}, function(err, doc) {
-        if(err) {
-            res.json({ type: 1, msg: '服务器错误' })
-        } else {
-            res.json({ type: 0, msg: '获取成功', data: doc })
-        }
-    })
-})
 
 //删除
 router.post('/deletePic', function(req, res) {
@@ -343,12 +379,36 @@ router.post('/deletePic', function(req, res) {
     })
 })
 
+//公司数量
 router.get('/getCompanyCount', function(req, res) {
     db.companyModel.count(function(err, count) {
         res.json({code: 0, data:count})
     })
 })
 
+//学生数量
+router.get('/getStudentCount', function(req, res) {
+    db.studentModel.count(function(err, count) {
+        res.json({ code: 0, data:count })
+    })
+})
+//学生
+router.get('/getAllStudent', function (req, res) {
+    let limit = req.query.limit
+    let cur = req.query.cur - 1   //第一页cur=1, 第二页cur=2
+
+    db.studentModel.find({}, null, {
+        skip: limit * cur,
+        limit: parseInt(limit)
+    }, function (err, doc) {
+        if (err) {
+            res.json({ code: 1, msg: '服务器出错，查询失败' })
+        } else {
+            res.json({ code: 0, msg: '查询成功', data: doc })
+        }
+    })
+})
+//简历统计
 router.get('/getJlCount', async function(req, res) {
     const total = await db.com2jlModel.count()
     const fail = await db.com2jlModel.count({status: 0})
