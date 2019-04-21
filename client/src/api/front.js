@@ -171,7 +171,9 @@ export function updateStudentInfo(form) {
 export function getJl(studentId) {
   const url = "http://localhost:3000/front/getJl"
   return axios
-    .get(url)
+    .get(url, {params: {
+        _id: studentId
+    }})
     .then(res => {
       return Promise.resolve(res.data)
     })
@@ -273,10 +275,10 @@ export function deleteRecruit(recruit_id) {
     })
 }
 
-export function getResumeByCompanyId(companyId, page) {
+export function getResumeByCompanyId(companyId, page, prop, order) {
   const url = "http://localhost:3000/front/getResumeByCompanyId"
   return axios
-    .get(url, { params: { companyId, page } })
+    .get(url, { params: { companyId, page, prop, order } })
     .then(res => {
       return Promise.resolve(res.data)
     })
@@ -357,4 +359,17 @@ export function deleteChtor({from, to}) {
               .catch(err => {
                 return Promise.reject(err)
               })
+}
+
+//修改招聘信息
+export function updateResume(params) {
+  const url = 'http://localhost:3000/front/updateResume'
+  return axios
+            .post(url, params)
+            .then(res => {
+              return Promise.resolve(res.data)
+            })
+            .catch(err => {
+              return Promise.reject(err)
+            })
 }

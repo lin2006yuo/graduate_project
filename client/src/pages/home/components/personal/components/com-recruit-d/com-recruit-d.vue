@@ -15,6 +15,7 @@
       <p class="p1"><span>薪资：</span> {{resumeDetail.salary}}/天</p>
       <p class="p1"><span>实习时间：</span> {{resumeDetail.day}}个月</p>
       <div class="textarea">
+        <span>职位要求：</span>
         <div
           class="ql-editor"
           v-html="resumeDetail.content"
@@ -70,9 +71,15 @@ export default {
         color #666
     .textarea
       height 300px
-      border 1px solid #eeeeee
+      // border 1px solid #eeeeee
       border-radius 5px
       margin-bottom 10px
+      display flex
+      .ql-editor 
+        padding 0
+        border 1px solid #eee
+        width 500px
+        padding 5px
     .block
       width 100%
       text-align center

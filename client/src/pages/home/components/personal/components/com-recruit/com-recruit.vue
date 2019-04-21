@@ -15,10 +15,7 @@
         >
           <div class="top">
             <div class="item-title">{{item.title}}</div>
-            <span class="fenlei">{{item.category[0]}}<i
-                class="iconfont el-icon-more"
-                v-if="item.category.length > 1"
-              ></i></span>
+            <span class="fenlei">{{item.category[0]}}</span>
             <div class="info">
               <span>{{item.salary}}/天</span>
               <p>{{item.day}}个月</p>
@@ -31,7 +28,7 @@
             </div>
           </div>
           <div class="bottom">
-            <span class="modify">修改</span>
+            <span class="modify" @click="modifyClick(item)">修改</span>
             <span
               class="delete"
               @click="dialogVisible = true;current_id = item._id"
@@ -61,22 +58,29 @@
         >确 定</el-button>
       </span>
     </el-dialog>
+    
+    <modify :form="editForm" :visible.sync="dialogVisibleModify"></modify>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import { getResume, deleteRecruit } from "api/front";
+import Modify from './modify'
 import { mapMutations } from "vuex";
 
 export default {
   data() {
     return {
       dialogVisible: false,
+      dialogVisibleModify: false,
       resumeData: [],
-      current_id: ""
+      current_id: "",
+      editForm: {},
     };
   },
-  components: {},
+  components: {
+    Modify
+  },
   mounted() {
     getResume().then(res => {
       this.resumeData = res.data;
@@ -115,6 +119,11 @@ export default {
         .catch(err => {
           console.log(err);
         });
+    },
+    modifyClick(item) {
+      console.log(item)
+      this.dialogVisibleModify = true
+      this.editForm = item
     },
     ...mapMutations({
       setResume: "SET_RESUME"

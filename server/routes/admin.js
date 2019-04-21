@@ -3,6 +3,7 @@ const router = express.Router()
 const db = require('../db')
 const mongoose = require('mongoose')
 const multer  = require('multer')
+const _ = require('lodash')
 const auth = require('../middleware/auth')
 
 const storage = multer.diskStorage({
@@ -16,7 +17,7 @@ const storage = multer.diskStorage({
   })
 const upload = multer({ storage: storage })
 
-router.use(auth)
+// router.use(auth)
 
 // 登陆请求
 router.post('/login', function (req, res) {
@@ -137,11 +138,22 @@ router.get('/getAllCompany', function (req, res) {
     db.companyModel.find({}, null, {
         skip: limit * cur,
         limit: parseInt(limit)
-    }, function (err, doc) {
+    }, async function (err, doc) {
         if (err) {
             res.json({ code: 1, msg: '服务器出错，查询失败' })
         } else {
-            res.json({ code: 0, msg: '查询成功', data: doc })
+            const companyList = _.cloneDeep(doc)
+            for(let i = 0; i < companyList.length; i++) {
+                let company = companyList[i]
+                const companyId = mongoose.Types.ObjectId(company._id)
+                const result = await db.com2jlModel.find({ companyId: companyId })
+                .populate('recruitId')
+                .populate('jlId')
+                .populate('studentId')
+    
+                company.jl.push(...result)
+            }
+            res.json({ code: 0, msg: '查询成功', data: companyList})
         }
     })
 })
@@ -423,6 +435,18 @@ router.post('/avator',function (req, res) {
     res.json({
         code: 0,
         msg: 'suc'
+    })
+})
+
+//根据id获取公司招聘信息
+router.get("/getResume", function(req, res) {
+    const companyId = mongoose.Types.ObjectId(req.query._id)
+    db.resumeModel.find({ companyId: companyId }, function(err, doc) {
+        if (err) {
+            res.json({ code: 1, msg: "查询失败" })
+        } else {
+            res.json({ code: 0, msg: "查询成功", data: doc })
+        }
     })
 })
 

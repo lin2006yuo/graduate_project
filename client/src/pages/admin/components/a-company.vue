@@ -15,10 +15,21 @@
         <el-table
         v-if="companyList"
         :data="companyList"
+        @cell-click="cellClick"
         style="width: 100%">
             <el-table-column
                 prop="companyName"
                 label="公司名称">
+            </el-table-column>
+            <el-table-column
+                label="录取比">
+                <template slot-scope="scope">
+                    <span class="click" @click="curRow = scope.row;luquVisible = true">{{scope.row.luqu}}</span>
+                </template>
+            </el-table-column>
+            <el-table-column
+                prop="luqulv"
+                label="录取率">
             </el-table-column>
             <el-table-column
                 width="300px"
@@ -62,11 +73,13 @@
                 <el-button type="primary" @click="delClick">确 定</el-button>
             </span>
         </el-dialog>
+        <luqu :visible.sync="luquVisible" :company="curRow"></luqu>
     </div>
 </template>
 
 <script type="text/ecmascript-6">
 import { getAllCompany, getAllCompanyCount, deleteCompany, getCompanyByName } from 'api/admin/admin'
+import luqu from './luqu'
 import {mapMutations, mapGetters, mapActions} from 'vuex'
 
 const COUNT = 10 //总记录数
@@ -77,7 +90,9 @@ export default {
             curId: '',
             curIndex: 0,
             sum: 0,
-            search: ''
+            search: '',
+            curRow: {},
+            luquVisible: false
         }
     },
     mounted(){
@@ -97,7 +112,9 @@ export default {
             }
         }
     },
-    components: {},
+    components: {
+        luqu
+    },
     methods: {
         querySearchAsync(queryString, cb) {
             getCompanyByName(queryString).then(res => {
@@ -142,10 +159,22 @@ export default {
             console.log(1);
             
         },
+        cellClick(row, column, cell, event) {
+            if(column.property === 'companyName') {
+                console.log('*******')
+            }
+        },
         _initCompany(cur = 1,limit = COUNT){
             getAllCompany(limit,cur).then(res => {
                 // this.tableData = res.data
-                this.setCompanyList(res.data)
+                const data = res.data
+                data.forEach(company => {
+                    const pass = company.jl.filter(i => i.status === 2).length
+                    company.luqu = `${pass} / ${company.jl.length}`
+                    company.luqulv = !company.jl.length ? '0%' : ((pass/company.jl.length).toFixed(2) * 100) + '%'
+                })
+                // console.log(data)
+                this.setCompanyList(data)
             }).catch(err => {
                 console.log(err); 
             })
@@ -174,6 +203,10 @@ export default {
 .a-company
     padding 20px
     background-color #fff
+    .click {
+        color: #409EFF;
+        cursor pointer
+    }
     .logistics-item
         height 120px
         border-radius 15px

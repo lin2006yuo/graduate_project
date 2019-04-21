@@ -158,7 +158,8 @@ router.post("/updateStudent", function(req, res) {
 
 //获取简历及对应学生信息
 router.get("/getJl", function(req, res) {
-    const studentId = mongoose.Types.ObjectId(req.session._id)
+    const id = req.session._id || req.query._id
+    const studentId = mongoose.Types.ObjectId(id)
     db.jlModel
         .findOne({ studentId: studentId })
         .populate("studentId")
@@ -264,6 +265,28 @@ router.post("/updateCompany", function(req, res) {
     )
 })
 
+
+//修改招聘信息
+router.post("/updateResume", function(req, res) {
+    const { category, companyId, content, date, day, salary, title, _id } = req.body
+    const id = mongoose.Types.ObjectId(_id)
+
+    db.resumeModel.updateOne(
+        { _id: id },
+        {
+            category, companyId, content, date, day, salary, title,
+        },
+        function(err, doc) {
+            if (err) {
+                res.json({ code: 1, msg: "修改失败", err: err })
+            } else {
+                res.json({ code: 0, msg: "修改成功", data: doc })
+            }
+        }
+    )
+})
+
+
 //公司发布招聘信息
 router.post("/publishResume", function(req, res) {
     const companyId = mongoose.Types.ObjectId(req.session._id)
@@ -335,9 +358,8 @@ router.get("/getResumeById", function(req, res) {
 //通过公司id获得投递的简历
 router.get("/getResumeByCompanyId", async function(req, res) {
     const companyId = mongoose.Types.ObjectId(req.query.companyId)
+    const { prop, order } = req.query
     const page = req.query.page - 1
-    console.log(page)
-    console.log(companyId)
     let count
     await db.com2jlModel.count({}, (err, doc) => {
         if(err) {
@@ -351,6 +373,7 @@ router.get("/getResumeByCompanyId", async function(req, res) {
         .find({ companyId: companyId })
         .skip(page * 6)
         .limit(6)
+        .sort({[prop]: order})
         .populate('studentId')
         .populate('recruitId')
         .populate('jlId')

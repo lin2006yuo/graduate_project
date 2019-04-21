@@ -65,16 +65,7 @@
             </el-pagination>
         </div>
         <el-dialog title="学生信息" :visible.sync="showStudentInfo" width="400px">
-            <div><label for="">姓名：</label><span>{{studentInfo.name}}</span></div>
-            <div><label for="">性别：</label><span>{{studentInfo.sex === 1 ? '男' : '女'}}</span></div>
-            <div><label for="">学院：</label><span>{{studentInfo.academy}}</span></div>
-            <div><label for="">专业：</label><span>{{studentInfo.major}}</span></div>
-            <div><label for="">民族：</label><span>{{studentInfo.ethnic}}</span></div>
-            <div><label for="">年级：</label><span>{{studentInfo.grade}}</span></div>
-            <div><label for="">手机号码：</label><span>{{studentInfo.phone}}</span></div>
-            <div><label for="">出生日期：</label><span>{{new Date(studentInfo.birthday).toLocaleDateString()}}</span></div>
-            <div><label for="">email：</label><span>{{studentInfo.eMail}}</span></div>
-            <div><label for="">城市：</label><span>{{studentInfo.city[0]}} - {{studentInfo.city[1]}}</span></div>
+            <studentinfo :student-info="studentInfo"></studentinfo>
         </el-dialog>
         <el-dialog title="修改密码" :visible.sync="showModel" width="300px">
             <el-input  size="mini" v-model="newPwd"></el-input>
@@ -96,6 +87,7 @@
 <script type="text/ecmascript-6">
 import { getAllStudent, getStduentCount, deleteStudent, getJlCount, updateStudentPassword, getStudentByName } from 'api/admin/admin'
 import {mapMutations, mapGetters, mapActions} from 'vuex'
+import studentinfo from './studentinfo'
 
 const COUNT = 10 //总记录数
 export default {
@@ -141,7 +133,7 @@ export default {
             }
         }
     },
-    components: {},
+    components: {studentinfo},
     methods: {
         querySearchAsync(queryString, cb) {
             getStudentByName(queryString).then(res => {

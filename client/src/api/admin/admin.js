@@ -258,3 +258,16 @@ export function getJlCount() {
     })
 }
 
+
+export function getResume(_id) {
+    const url = 'http://localhost:3000/admin/getResume'
+    return axios.get(url, {
+        params: {
+            _id
+        }
+    }).then(res => {
+        return Promise.resolve(res.data)
+    }).catch(err => {
+        return Promise.reject(err)
+    })
+}

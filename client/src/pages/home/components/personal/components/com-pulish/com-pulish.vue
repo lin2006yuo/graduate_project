@@ -41,8 +41,8 @@
                 </el-select>
                 <span>个月</span>
             </el-form-item>
-            <div class="require">职位要求：</div>
-            <el-form-item label-width='0px' class="form-item-d">
+            <div class="require-wrapper">
+                <div class="require">职位要求：</div>
                 <div class="quill">
                     <quill-editor v-model="form.a_content"
                                                 ref="myQuillEditor"
@@ -50,7 +50,7 @@
                                                 :options="editorOption" @ready="onEditorReady($event)">
                     </quill-editor>
                 </div>
-            </el-form-item>
+            </div>
             <div class="block">
                 <el-button type="primary" @click="publishHandle">发布</el-button>
             </div>
@@ -78,7 +78,7 @@ export default {
                 day: '',
                 a_content:'',
             },
-            vhtml:'<p><span class=\"ql-size-huge\">撒旦撒</span></p><p><span class=\"ql-size-huge\">的撒啊是大</span></p>',
+            vhtml:'',
             editorOption: {
                     modules:{
                         toolbar:[
@@ -129,6 +129,15 @@ export default {
 </script>
 
 <style scoped lang="stylus">
+.com-publish {
+    >>> .el-form-item__content {
+        line-height 0
+    }
+
+}
+.require-wrapper {
+    display: flex;
+}
 .require
     font-size 16px 
     color #666

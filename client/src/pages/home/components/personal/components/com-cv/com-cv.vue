@@ -14,7 +14,15 @@
             class="c-table"
             :data="tableData"
             style="width: 100%"
+            @sort-change="sortChange"
           >
+            <el-table-column
+              prop="date"
+              label="日期"
+              width="100"
+              :formatter="(row) =>{return row.date.slice(0,10)}"
+              sortable="custom"
+            />
             <el-table-column
               prop="name"
               label="姓名"
@@ -34,10 +42,19 @@
             </el-table-column>
             <el-table-column
               label="状态"
+              sortable="custom"
+              prop="status"
+              :formatter="(row) => {
+                const {status: value} = row
+                if(value === 2) {
+                  return '通过'
+                } else if (value === 1) {
+                  return '待审核'
+                } else if(value === 0) {
+                  return '未通过'
+                } 
+              }"
             >
-              <template slot-scope="scope">
-                {{ scope.row.status | status }}
-              </template>
             </el-table-column>
             <el-table-column
               prop="crud"
@@ -162,7 +179,9 @@ export default {
       page: 1,
       count: 0,
       haspass: 0,
-      currentIndex: ""
+      currentIndex: "",
+      prop: 'date',
+      order: 'ascending',
     };
   },
   mounted() {
@@ -188,7 +207,7 @@ export default {
   components: {},
   methods: {
     init() {
-      getResumeByCompanyId(this.company._id, this.page).then(res => {
+      getResumeByCompanyId(this.company._id, this.page, this.prop, this.order).then(res => {
         if(res.code === 0) {
           this.tableData = this.handleTableData(res.data.data)
           this.count = res.data.count
@@ -221,6 +240,7 @@ export default {
             tableItem.jlInfo = {...c.jlId, ...c.studentId, title: c.recruitId.title}
             tableItem.id = c._id
             tableItem.status = c.status
+            tableItem.date = c.date
             return tableItem
       })
     },
@@ -231,7 +251,7 @@ export default {
           const id = this.currentJlId
           passJl({id, pass}).then(res => {
             if(res.type === 0) {
-              if(pass === 1) {
+              if(pass) {
                 this.$message({ type: 'success', message: '简历通过' })
                 this.haspass = 2
                 this.tableData[this.currentIndex].status = 2
@@ -243,6 +263,12 @@ export default {
             }
           })
       }).catch(() => {})
+    },
+    sortChange({column, prop, order} ) {
+      console.log(column, prop, order)
+      this.prop = prop
+      this.order = order
+      this.init()
     }
   }
 };

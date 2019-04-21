@@ -13,7 +13,8 @@ const companySchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'resumeModel'
     }],
-    avatar: { type: String, default: "localhost:3000/uploads/default.png" }
+    avatar: { type: String, default: "localhost:3000/uploads/default.png" },
+    jl: {type: Array}
 })
 
 module.exports = companySchema
