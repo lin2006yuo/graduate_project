@@ -271,3 +271,32 @@ export function getResume(_id) {
         return Promise.reject(err)
     })
 }
+
+//获取简历及对应学生信息
+export function getJl(studentId) {
+    const url = "http://localhost:3000/admin/getJl"
+    return axios
+      .get(url, {params: {
+          _id: studentId
+      }})
+      .then(res => {
+        return Promise.resolve(res.data)
+      })
+      .catch(err => {
+        return Promise.resolve(err)
+      })
+  }
+
+
+  //获取学院简历分析
+  export function checkcom2jl() {
+    const url = "http://localhost:3000/admin/checkcom2jl"
+    return axios
+      .post(url)
+      .then(res => {
+        return Promise.resolve(res.data)
+      })
+      .catch(err => {
+        return Promise.resolve(err)
+      })
+  }

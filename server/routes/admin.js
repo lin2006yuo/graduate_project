@@ -15,7 +15,17 @@ const storage = multer.diskStorage({
       cb(null, timestamp + '.png')
     }
   })
+  const storageAnnounce = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, 'static/announce/')
+    },
+    filename: function (req, file, cb) {
+        const timestamp = Date.now()
+      cb(null, timestamp + '.png')
+    }
+  })
 const upload = multer({ storage: storage })
+const uploadAnnounce = multer({ storage: storageAnnounce })
 
 // router.use(auth)
 
@@ -365,7 +375,6 @@ router.get('/getAllResume', function (req, res) {
 
 
 /****************************** 轮播图 ******************************** */
-
 //添加
 router.post('/uploadPic', upload.single('file'),function(req, res) {
     const picUrl = `localhost:3000/uploads_swiper/${req.file.filename}`
@@ -377,6 +386,8 @@ router.post('/uploadPic', upload.single('file'),function(req, res) {
         }
     })
 })
+
+
 
 
 //删除
@@ -412,11 +423,12 @@ router.get('/getAllStudent', function (req, res) {
     db.studentModel.find({}, null, {
         skip: limit * cur,
         limit: parseInt(limit)
-    }, function (err, doc) {
+    }, async function (err, doc) {
         if (err) {
             res.json({ code: 1, msg: '服务器出错，查询失败' })
         } else {
-            res.json({ code: 0, msg: '查询成功', data: doc })
+            const result = await db.com2jlModel.find({}, null)
+            res.json({ code: 0, msg: '查询成功', data: doc, com2jl: result })
         }
     })
 })
@@ -450,8 +462,62 @@ router.get("/getResume", function(req, res) {
     })
 })
 
+//获取简历及对应学生信息
+router.get("/getJl", function(req, res) {
+    const id = req.query._id
+    console.log(id)
+    const studentId = mongoose.Types.ObjectId(id)
+    db.jlModel
+        .findOne({ studentId: studentId })
+        .populate("studentId")
+        .exec(function(err, doc) {
+            if (err) {
+                res.json({ code: 1, msg: "查询失败", err: err })
+            } else {
+                res.json({ code: 0, msg: "查询成功", data: doc })
+            }
+        })
+})
 
+//校园公告图片
+router.post('/uploadAnnouncePic', uploadAnnounce.single('file'),function(req, res) {
+    const picUrl = `localhost:3000/announce/${req.file.filename}`
+    db.swiperPicModel.create({ picUrl }, function(err, doc) {
+        if(err) {
+            res.json({ type: 1, mgs: '服务器错误' })
+        } else {
+            res.json({ type: 0, msg: '添加成功', data: doc })
+        }
+    })
+})
 
-
+//校园公告图片
+router.post('/checkcom2jl', async function(req, res) {
+    const result = await db.com2jlModel
+        .find({})
+        .populate('recruitId')
+        .populate('studentId')
+        .exec()
+    // _.groupBy(result,)
+    const resultData = _.groupBy(result,'studentId.academy')
+    console.log(resultData)
+    const tableData = []
+    for(key in resultData) {
+        const valueData = resultData[key]
+        let total=0, pass=0, undefind=0, unpass=0
+        valueData.forEach(value => {
+            total ++
+            if(value.status === 1) {
+                undefind ++
+            } else if(value.status === 2) {
+                pass ++
+            } else {
+                unpass ++
+            }
+        })
+        tableData.push({name: key, total, pass, undefind, unpass, rate: Number(pass/total).toFixed(2) * 100 + '%'})
+    }
+    res.json({code: 0, data: tableData})
+})
 
 module.exports = router

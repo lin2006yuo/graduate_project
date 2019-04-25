@@ -159,6 +159,7 @@ router.post("/updateStudent", function(req, res) {
 //获取简历及对应学生信息
 router.get("/getJl", function(req, res) {
     const id = req.session._id || req.query._id
+    console.log(id)
     const studentId = mongoose.Types.ObjectId(id)
     db.jlModel
         .findOne({ studentId: studentId })

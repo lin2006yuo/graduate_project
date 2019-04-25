@@ -13,12 +13,12 @@
                 <div><label for="">email：</label><span>{{studentInfo.eMail}}</span></div>
                 <div><label for="">城市：</label><span>{{studentInfo.city[0]}} - {{studentInfo.city[1]}}</span></div>  
             </el-collapse-item>
-            <el-collapse-item title="简历信息" name="2">
+            <el-collapse-item title="简历信息" name="2">    
                 <div v-if="!jlInfo._id">未完善简历</div>
                 <div v-else>
                     <div><label for="">专业证书：</label><span>{{jlInfo.certificate}}</span></div>
                     <div><label for="">学历：</label><span>{{jlInfo.edu}}</span></div>
-                    <div><label for="">期待工作地：</label><span>{{jlInfo.excepCity[0][0][0]}}|{{jlInfo.excepCity[0][0][1]}}</span></div>
+                    <div><label for="">期待工作地：</label><span v-if="jlInfo.excepCity[0].length">{{jlInfo.excepCity[0][0][0]}}|{{jlInfo.excepCity[0][0][1]}}</span></div>
                     <div><label for="">期待薪酬：</label><span>{{jlInfo.excepMon}}</span></div>
                     <div><label for="">是否学生干部：</label><span>{{jlInfo.isT ? '是' : '否'}}</span></div>
                     <div>
@@ -69,7 +69,8 @@
     </div>
 </template>
 <script>
-import {getJl, getResumeById} from '@/api/front'
+import {getResumeById} from '@/api/front'
+import {getJl} from '@/api/admin/admin'
 export default {
     data() {
         return {

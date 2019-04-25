@@ -20,6 +20,26 @@
             <el-table-column
                 prop="companyName"
                 label="公司名称">
+                <template slot-scope="scope">
+                    <el-popover ref="myPopover" trigger="hover" placement="right" @show="popoverShow(scope.row)">
+                        <div class="company-info">
+                            <div class="left">
+                                <img width="50" height="50" :src="`http://${curCompany.avatar}`" alt="头像">
+                            </div>
+                            <div class="right">
+                                <div class="companyName">公司名称：</div>
+                                <div>{{curCompany.companyName ? curCompany.companyName : '暂未完善'}}</div>
+                                <div class="companyName">公司简介：</div>
+                                <div>{{curCompany.companyIntro ? curCompany.companyIntro : '暂未完善'}}</div>
+                                <div class="companyName">联系人：</div>
+                                <div>{{curCompany.contact ? curCompany.contact : '暂未完善'}}</div>
+                                <div class="companyName">联系电话：</div>
+                                <div>{{curCompany.phone ? curCompany.phone : '暂未完善'}}</div>
+                            </div>
+                        </div>
+                    </el-popover>
+                    <span v-popover:myPopover class="click">{{scope.row.companyName}}</span>
+                </template>
             </el-table-column>
             <el-table-column
                 label="录取比">
@@ -92,7 +112,8 @@ export default {
             sum: 0,
             search: '',
             curRow: {},
-            luquVisible: false
+            luquVisible: false,
+            curCompany: {}
         }
     },
     mounted(){
@@ -163,6 +184,9 @@ export default {
             if(column.property === 'companyName') {
                 console.log('*******')
             }
+        },
+        popoverShow(company) {
+            this.curCompany = company
         },
         _initCompany(cur = 1,limit = COUNT){
             getAllCompany(limit,cur).then(res => {

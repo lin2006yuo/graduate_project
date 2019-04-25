@@ -13,14 +13,52 @@
             <el-col :span="10">
                 <span class="title">简历分析</span>
                 <ve-pie :data="chartData"></ve-pie>
-            </el-col>
-            <el-col :span="10">
                 <div class="container">
-                    <div class="item yellow">总数量：{{jlInfo.total}}</div>
-                    <div class="item green">通过数：{{jlInfo.succuss}}</div>
-                    <div class="item blue">待审核数：{{jlInfo.undefind}}</div>
-                    <div class="item red">未通过数：{{jlInfo.fail}}</div>
+                    <div class="item yellow">总数量：
+                        <div>{{jlInfo.total}}</div>
+                    </div>
+                    <div class="item green">通过数：
+                        <div>{{jlInfo.succuss}}</div>
+                    </div>
+                    <div class="item blue">待审核数：
+                        <div>{{jlInfo.undefind}}</div>
+                    </div>
+                    <div class="item red">未通过数：
+                        <div>{{jlInfo.fail}}</div>
+                    </div>
                 </div>
+            </el-col>
+            <el-col :span="14">
+                <el-table
+                :data="tableData"
+                style="width: 100%">
+                    <el-table-column
+                        prop="name"
+                        label="学院"
+                        width="180">
+                    </el-table-column>
+                    <el-table-column
+                        prop="total"
+                        label="总投递数"
+                        width="180">
+                    </el-table-column>
+                    <el-table-column
+                        prop="pass"
+                        label="录取数">
+                    </el-table-column>
+                    <el-table-column
+                        prop="undefind"
+                        label="待审核数">
+                    </el-table-column>
+                    <el-table-column
+                        prop="unpass"
+                        label="未通过数">
+                    </el-table-column>
+                    <el-table-column
+                        prop="rate"
+                        label="录取率">
+                    </el-table-column>
+                </el-table>
             </el-col>
         </el-row>
         <el-table
@@ -29,16 +67,20 @@
             <el-table-column
                 label="学生名称">
                 <template slot-scope="scope">
-                    <div style="cursor: pointer" @click="rowClick(scope.row)">{{scope.row.name}}</div>
+                    <div style="cursor: pointer" class="click" @click="rowClick(scope.row)">{{scope.row.name}}</div>
                 </template>
             </el-table-column>
+            <el-table-column
+                prop="jl"
+                label="录取比"
+            ></el-table-column>
             <el-table-column
                 width="300px"
                 prop="bian"
                 label="编辑">
                 <template slot="header" slot-scope="scope">
                     <el-autocomplete
-                    popper-class="my-autocomplete"
+                    @select="handleSelect"
                     v-model="search"
                     :fetch-suggestions="querySearchAsync"
                     placeholder="请输入内容"
@@ -85,9 +127,10 @@
 </template>
 
 <script type="text/ecmascript-6">
-import { getAllStudent, getStduentCount, deleteStudent, getJlCount, updateStudentPassword, getStudentByName } from 'api/admin/admin'
+import { getAllStudent, getStduentCount, deleteStudent, getJlCount, updateStudentPassword, getStudentByName, checkcom2jl } from 'api/admin/admin'
 import {mapMutations, mapGetters, mapActions} from 'vuex'
 import studentinfo from './studentinfo'
+import _ from 'lodash'
 
 const COUNT = 10 //总记录数
 export default {
@@ -103,12 +146,14 @@ export default {
             newPwd: '',
             studentInfo: {city: []},
             showStudentInfo: false,
-            search: ''
+            search: '',
+            tableData: []
         }
     },
     mounted(){
         this._initCompany()
         this._initCount()
+        this._initcheckcom2jl()
     },
     computed: {
         ...mapGetters([
@@ -136,7 +181,7 @@ export default {
     components: {studentinfo},
     methods: {
         querySearchAsync(queryString, cb) {
-            getStudentByName(queryString).then(res => {
+            getStudentByName(queryString || '').then(res => {
                 this.studentList = res.data
                 this.count = 0
                 cb(res.data)
@@ -189,10 +234,25 @@ export default {
                 }
             })
         },
+        handleSelect(item) {
+            this.search = item.name
+        },
         _initCompany(cur = 1,limit = COUNT){
             getAllStudent(limit,cur).then(res => {
                 // this.tableData = res.data
                 this.studentList = res.data
+                // const jlGroup = _.groupBy(this.company.jl, "recruitId._id");
+                const com2jl = _.groupBy(res.com2jl, 'studentId')
+                this.studentList.forEach(i => {
+                    if(com2jl[i._id]) {
+                        const jlRate = `${
+                        com2jl[i._id].filter(i => i.status === 2).length
+                        } / ${com2jl[i._id].length}`;
+                        this.$set(i, 'jl', jlRate)
+                    } else {
+                        this.$set(i, 'jl', '0/0')
+                    }
+                })
             }).catch(err => {
                 console.log(err); 
             })
@@ -207,6 +267,11 @@ export default {
 
             getJlCount().then(res => {
                 this.jlInfo = res.data
+            })
+        },
+        _initcheckcom2jl() {
+            checkcom2jl().then(res => {
+                this.tableData = res.data
             })
         },
         ...mapMutations({
@@ -230,13 +295,13 @@ export default {
     }
     .container
         display flex
-        flex-direction column
-        margin-top 72px
+        flex-direction row
+        justify-content center
         .item
-            padding 15px
+            padding 8px
             margin 5px
             background-color #000
-            font-size 20px
+            font-size 16px
             font-weight bold
             color #fff
             border-radius 12px

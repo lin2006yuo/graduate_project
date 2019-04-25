@@ -39,6 +39,14 @@
                     </div>
                 </el-form-item>
             </el-form>
+            <el-upload
+                action="http://localhost:3000/admin/uploadAnnouncePic"
+                list-type="picture-card"
+                v-show="false"
+                :on-success="onUploadSuccess">
+                <el-button slot="trigger" size="small" type="primary" ref="uploadControl">选取文件</el-button>
+                <i class="el-icon-plus"></i>
+            </el-upload>
         </div>
     </div>
 </template>
@@ -68,7 +76,8 @@ export default {
                            ['blockquote', 'code-block','link'],
                            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],  
                            [{ 'align': [] }],
-                           [{ 'size': ['small', false, 'large', 'huge'] }], 
+                           [{ 'size': ['small', false, 'large', 'huge'] }],
+                           ['image'], 
                         ]
                     },
                     placeholder: '请输入职位要求',
@@ -88,6 +97,7 @@ export default {
 
     //  钩子
     mounted(){
+        this.$refs.myQuillEditor.quill.getModule('toolbar').addHandler('image', this.imgHandler)
     },
     activated(){
         this.routerStatus = this.$route.query.status
@@ -109,6 +119,14 @@ export default {
         quillEditor
     },
     methods: {
+        imgHandler(image) {
+            this.$refs.uploadControl.$el.click()
+        },
+        onUploadSuccess(res) {
+            const url = 'http://' + res.data.picUrl
+            console.log(url)
+            this.$refs.myQuillEditor.quill.insertEmbed(1, 'image', url)
+        },
         pulishAnnouce(){
             publishAnnouce(this.form).then(res => {
                 if(res.code === 0){
@@ -155,6 +173,9 @@ export default {
 .editor
     padding 20px
     background-color #fff
+    >>> .el-form-item__content {
+        line-height 20px
+    }
     .back
         margin 10px 0
         i
