@@ -482,7 +482,7 @@ router.get("/getJl", function(req, res) {
 //校园公告图片
 router.post('/uploadAnnouncePic', uploadAnnounce.single('file'),function(req, res) {
     const picUrl = `localhost:3000/announce/${req.file.filename}`
-    db.swiperPicModel.create({ picUrl }, function(err, doc) {
+    db.imgpicModel.create({ picUrl }, function(err, doc) {
         if(err) {
             res.json({ type: 1, mgs: '服务器错误' })
         } else {

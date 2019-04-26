@@ -25,6 +25,10 @@ const AnnounceSchema = new Schema({
     content: { type: String }
 })
 
+const imgpicSchema = new Schema({
+    picUrl: {type:String}
+})
+
 mongoose.connect(
     "mongodb://127.0.0.1:27017/graduProject",
     function(error) {
@@ -46,6 +50,7 @@ mongoose.connect(
 const db = {
     adminModel: mongoose.model("adminModel", adminSchema),
     AnnounceModel: mongoose.model("AnnounceModel", AnnounceSchema),
+    imgpicModel: mongoose.model("imgpicSchema", imgpicSchema),
     resumeModel,
     companyModel,
     studentModel,
@@ -54,7 +59,8 @@ const db = {
     com2jlModel,
     swiperPicModel,
     chatModel,
-    chatListModel
+    chatListModel,
+    
 }
 
 module.exports = db

@@ -30,6 +30,11 @@ export default {
     activated() {
         this.announce = this.$route.params.announce
     },
+    mounted() {
+        if(!this.announce.title) {
+            this.$router.back()
+        }
+    },
     filters: {
         timeFormat(val){
             return dataFormat(val, 'yyyy-MM-dd')
