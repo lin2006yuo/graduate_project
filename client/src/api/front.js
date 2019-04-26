@@ -119,7 +119,7 @@ export function getCityById(id = 44) {
     })
 }
 
-export function getTotalResume(arr = [], cur = 1, limit = 10) {
+export function getTotalResume(arr = [], cur = 1, limit = 8) {
   const url = "http://localhost:3000/public/getResume"
   return axios
     .get(url, {

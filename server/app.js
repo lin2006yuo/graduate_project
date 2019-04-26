@@ -21,7 +21,7 @@ app.use(express.static(path.join(__dirname, 'static')))
 app.use(cors({
     maxAge: 172800,
     credentials: true, 
-    origin: ['http://localhost:8080']
+    origin: ['http://localhost:8081']
 }))
 app.use(cookieParser())
 
