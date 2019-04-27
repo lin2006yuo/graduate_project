@@ -14,7 +14,8 @@ import moment from 'moment'
     socket.on('receiveMsg', function (msg) {
         // if(data.to !== userid) return 
         // const userid = state.student._id || state.company._id
-        if(msg.to !== userid && msg.from !== userid) return
+        console.log(state.currentChator._id, msg.from)
+        if(msg.to !== userid && msg.from !== userid && state.currentChator._id !==msg.from) return
         if(msg.from !== state.currentChator._id && msg.from !== userid) {
             const index = state.chatlist.findIndex(c => (c._id === msg.from))
             //如果聊天列表有此人

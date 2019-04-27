@@ -21,11 +21,13 @@ app.use(express.static(path.join(__dirname, 'static')))
 app.use(cors({
     maxAge: 172800,
     credentials: true, 
-    origin: ['http://localhost:8081']
+    origin: ['http://localhost:8080']
 }))
 app.use(cookieParser())
 
 //cookie session
+
+
 app.use(session({
     secret: 'secret', // 对session id 相关的cookie 进行签名
     resave: true,
